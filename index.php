@@ -21,8 +21,10 @@
     <div class="uk-grid">
         <div class="uk-width-medium-3-10 uk-panel uk-panel-box uk-panel-box-primary">3</div>
         <div class="uk-width-medium-7-10 uk-panel uk-panel-box">
+        
             <div id="main-switcher" class="uk-switcher">
-                <div id="main-ken" class="uk-active">...1</div>
+                <div id="main-ken" class="uk-active">
+                </div>
                 <div id="main-city">...2</div>
                 <div id="main-town">...3</div>
                 <div id="main-block">...4</div>
