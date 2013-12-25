@@ -176,8 +176,8 @@ var menu_func = {
 
 var search = {
     history: {
-        data: [],
-    }
+        data: []
+    },
     now: {
         ken: "",
         city: "",
