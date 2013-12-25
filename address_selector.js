@@ -171,7 +171,7 @@ var menu_func = {
         });
         this.refresh_ken();
         return this;
-    }
+    } 
 }.init().refresh_ken();
 
 var search = {

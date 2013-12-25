@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title></title>
         <link rel="stylesheet" href="uikit-2.0.0/css/uikit.min.css" />
         <link rel="stylesheet" href="address_selector.css" />
