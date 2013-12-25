@@ -11,11 +11,13 @@
             <button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button>
         </div>
         <div class="uk-width-medium-7-10">
-            <div data-uk-switcher="{connect:'#main-switcher'}">
-                <button id="select-ken" class="uk-button" type="button">神奈川県</button>
-                <button id="select-city" class="uk-button" type="button">横浜市</button>
-                <button id="select-town" class="uk-button" type="button">神奈川区</button>
-            </div>
+            <ul class="uk-tab" data-uk-tab="{connect:'#main-switcher'}">
+                <li><button id="select-ken" class="uk-button uk-button-primary">***県</button></li>
+                <li><button id="select-city" class="uk-button uk-button-primary" id="select-city" >***市</button></li>
+                <li><button id="select-town" class="uk-button uk-button-primary" id="select-town" >***区</button></li>
+                <li><button id="select-block" class="uk-button uk-button-primary" id="select-block" >番地</button></li>
+            </ul>
+
         </div>
     </div>
     <div class="uk-grid">
@@ -25,10 +27,11 @@
             <div id="main-switcher" class="uk-switcher">
                 <div id="main-ken" class="uk-active">
                 </div>
-                <div id="main-city">...2</div>
-                <div id="main-town">...3</div>
-                <div id="main-block">...4</div>
-                <div id="main-office">...5</div>
+                <div id="main-city"></div>
+                <div id="main-town"></div>
+                <div id="main-block">
+                    <input type="text" id="input-town" placeholder="番地入力" class="uk-form-width-medium">
+                </div>
             </div>
         
         </div>
