@@ -42,6 +42,7 @@
                     <input type="text" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
+                    <button class="uk-button uk-button-primary big-button" id="input-clear">クリア</button>
                     <div>
                         <button class="uk-button uk-button-primary big-num" data-num="1">1</button>
                         <button class="uk-button uk-button-primary big-num" data-num="2">2</button>

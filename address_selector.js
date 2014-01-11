@@ -183,8 +183,12 @@ var menu_func = {
             search.now.add_history();
         });
         
-        $('#open-map').click(function(ind, obj) {
+        $('#open-map').click(function(event) {
             search.map_open(search.now.get());
+        });
+        
+        $('#input-clear').click(function(event) {
+            $inputBlock.val('');
         });
     },
     
