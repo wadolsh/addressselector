@@ -6,16 +6,48 @@ button {
     margin: 4px;
 }
 
+.uk-button {
+    line-height: 22px;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    width: 310px;
+    border-right: 1px solid rgba(0,0,0,0.1);
+}
+.wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 310px;
+    right: 0;
+}
+
 #main-ken button {
     min-width: 110px;
 }
 
 #main-city button {
-    min-width: 350px;
+    min-width: 250px;
     text-align: left;
 }
 
 #main-town button {
-    min-width: 350px;
+    min-width: 250px;
     text-align: left;
+}
+
+#main-block .big-num, #main-block .big-delete {
+    font-size: 40px;
+    height: 60px;
+    width: 30%;
+}
+
+#main-block input {
+    font-size: 30px;
+    padding: 4px;
 }

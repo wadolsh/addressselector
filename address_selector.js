@@ -90,6 +90,7 @@ var menu_func = {
         } else {
             this.reget_meta();
         }
+        this.refresh_block();
         return this;
     },
     save_meta: function() {
@@ -110,7 +111,7 @@ var menu_func = {
         var $main_ken = $('#main-ken').empty();
         var $button = null;
         $.each(this._meta.ken, function(key, val) {
-            $button = $('<button class="uk-button uk-button-' + (val.dbsize > 0 ? 'danger' : 'primary' )  +  '" type="button">' + val.name + '</button>')
+            $button = $('<button class="uk-button ' + (val.dbsize > 0 ? 'uk-button-primary' : '' )  +  '" type="button">' + val.name + '(' + key + ')</button>')
                         .appendTo($main_ken)
                         .click(function(event) {
                             if (val.dbsize > 0) {
@@ -131,7 +132,7 @@ var menu_func = {
         var row = null;
         for (var i = 0; i < rows.length; i++) {
             row = rows.item(i);
-            $button = $('<button class="uk-button uk-button-danger" type="button">' + (row.city_name + row.city_id) + '(' + row.city_furi + ')</button>')
+            $button = $('<button class="uk-button uk-button-primary" type="button">' + (row.city_name + '<br/>' + row.city_id) + '<br/>(' + row.city_furi + ')</button>')
                 .appendTo($main)
                 .click(function(event) {
                     var val = this.val;
@@ -152,7 +153,7 @@ var menu_func = {
         var row = null;
         for (var i = 0; i < rows.length; i++) {
             row = rows.item(i);
-            $button = $('<button class="uk-button uk-button-danger" type="button">' + (row.town_name + row.town_id) + '(' + row.town_furi + ')</button>')
+            $button = $('<button class="uk-button uk-button-primary" type="button">' + (row.town_name + '<br/>' + row.town_id) + '<br/>(' + row.town_furi + ')</button>')
                 .appendTo($main)
                 .click(function(event) {
                     var val = this.val;
@@ -163,6 +164,30 @@ var menu_func = {
         }
         $('#select-town').html('***区').click();
     },
+    refresh_block: function() {
+        var $inputBlock = $('#input-block');
+        $('#main-block .big-num').each(function(ind, obj) {
+            $(obj).click(function() {
+                $inputBlock.val($inputBlock.val() + obj.dataset.num);
+            });
+        });
+        
+         $('#main-block .big-delete').click(function(event) {
+             var block = $inputBlock.val();
+             $inputBlock.val(block.slice(0, -1));
+         });
+        
+        var $keepList = $('#keep-list');
+        $('#address-keep').click(function(ind, obj) {
+            search.now.get();
+            search.now.add_history();
+        });
+        
+        $('#open-map').click(function(ind, obj) {
+            search.map_open(search.now.get());
+        });
+    },
+    
     insert_db: function(jsonKen) {
         mongo.getCol(jsonKen.dbkey, function(data) {
             db.insert(data);
@@ -175,27 +200,53 @@ var menu_func = {
 }.init().refresh_ken();
 
 var search = {
-    history: {
-        data: []
+    init: function() {
+        this.keep.data = JSON.parse(localStorage['keep']);
+    },
+    keep: {
+        data: [],
+        save: function() {
+            localStorage['keep'] = JSON.stringify(search.keep.data);
+        }
     },
     now: {
         ken: "",
         city: "",
         town: "",
         block: "",
-        reset: function() {
-            this.ken = "";
-            this.city = "";
-            this.town = "";
-            this.block = "";
-        },
+        address: "",
         get: function() {
-            return this.ken + this.city + this.town + this.blcok;
+            this.ken = $('#select-ken').text();
+            this.city = $('#select-city').text();
+            this.town = $('#select-town').text();
+            this.block = $('#input-block').val();
+            this.address = this.ken + this.city + this.town + this.block;
+            return this.address;
         },
-        map_url: function() {
+        add_history: function() {
+            search.keep.data.push(this.address);
+            search.keep.save();
             
+            search.reflash();
         }
+    },
+    
+    reflash: function() {
+        var $keepList = $('#keep-list').empty();
+        $.each(search.keep.data, function(ind, address) {
+            $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="#" onclick="search.map_open(\'' + address + '\');">' + address + '</a></p></div>')
+                .appendTo($keepList)
+                .find('.uk-close').click(function(event) {
+                    search.keep.data.remove(address);
+                    search.keep.save();
+                });
+        });
+    },
+    
+    map_open: function(address) {
+        location.href = "geo:0,0?q=" + address;
+        //location.href = "http://maps.google.com/maps?q=" + address;
     }
     
-}
+}.init();
 
