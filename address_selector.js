@@ -201,7 +201,9 @@ var menu_func = {
 
 var search = {
     init: function() {
-        this.keep.data = JSON.parse(localStorage['keep']);
+        if (localStorage['keep']) {
+            this.keep.data = JSON.parse(localStorage['keep']);
+        }
         return this;
     },
     keep: {
