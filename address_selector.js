@@ -256,10 +256,11 @@ var search = {
     },
     
     map_open: function(address) {
-        location.href = "geo:0,0?q=" + address;
-        //location.href = "http://maps.google.com/maps?q=" + address;
+        //location.href = "geo:0,0?q=" + address;
+        location.href = "http://maps.google.com/maps?q=" + address;
     }
     
-}.init();
+};
+search.init();
 
 
