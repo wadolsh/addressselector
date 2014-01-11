@@ -208,6 +208,7 @@ var search = {
         if (localStorage['keep']) {
             this.keep.data = JSON.parse(localStorage['keep']);
         }
+        this.reflash();
         return this;
     },
     keep: {
@@ -240,7 +241,7 @@ var search = {
     
     reflash: function() {
         var $keepList = $('#keep-list').empty();
-        $.each(search.keep.data, function(ind, address) {
+        $.each(this.keep.data, function(ind, address) {
             $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="#" onclick="search.map_open(\'' + address + '\');">' + address + '</a></p></div>')
                 .appendTo($keepList)
                 .find('.uk-close').click(function(event) {
@@ -251,6 +252,7 @@ var search = {
                     search.keep.save();
                 });
         });
+        return this;
     },
     
     map_open: function(address) {
