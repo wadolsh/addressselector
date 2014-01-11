@@ -244,7 +244,10 @@ var search = {
             $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="#" onclick="search.map_open(\'' + address + '\');">' + address + '</a></p></div>')
                 .appendTo($keepList)
                 .find('.uk-close').click(function(event) {
-                    search.keep.data.remove(address);
+                    var index = search.keep.data.indexOf(address);
+                    if (index > -1) {
+                        search.keep.data.splice(index, 1);
+                    }
                     search.keep.save();
                 });
         });
