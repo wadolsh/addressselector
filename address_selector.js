@@ -242,7 +242,7 @@ var search = {
     reflash: function() {
         var $keepList = $('#keep-list').empty();
         $.each(this.keep.data, function(ind, address) {
-            $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="#" onclick="search.map_open(\'' + address + '\');">' + address + '</a></p></div>')
+            $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="' + search.map_url(address) + '">' + address + '</a></p></div>')
                 .appendTo($keepList)
                 .find('.uk-close').click(function(event) {
                     var index = search.keep.data.indexOf(address);
@@ -258,6 +258,10 @@ var search = {
     map_open: function(address) {
         //location.href = "geo:0,0?q=" + address;
         location.href = "http://maps.google.com/maps?q=" + address;
+    },
+    
+    map_url: function (address) {
+        return "http://maps.google.com/maps?q=" + address;
     }
     
 };
