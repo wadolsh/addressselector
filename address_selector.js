@@ -8,7 +8,7 @@ var mongo = {
     mongoAPIKey: "50ee07c6e4b0a0d1d01344f3",
     mongoBaseUrl: "https://api.mongolab.com/api/1",
     url: function(col) {
-        return this.mongoBaseUrl + "/databases/" + this.mongoDB + "/collections/" + col + "?apiKey=" + this.mongoAPIKey;
+        return this.mongoBaseUrl + "/databases/" + this.mongoDB + "/collections/" + col + "?apiKey=" + this.mongoAPIKey + "&l=0";
     },
     getCol: function(col, func) {
         $.getJSON(this.url(col), func);
@@ -20,7 +20,7 @@ var db = {
     
     dbInfo : {
         name: 'address_selector',
-        size: 10 * 1024 * 1024,
+        size: 100 * 1024 * 1024,
         version: '1.0',
         description: '住所データ格納'
     },
@@ -39,6 +39,11 @@ var db = {
            tx.executeSql(db.createSQL);
         });
         return this;
+    },
+    dropTable: function() {
+        this.database.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS ' + db.table);
+        });
     },
     insert: function(list) {
         var wild = [];
@@ -262,9 +267,23 @@ var search = {
     
     map_url: function (address) {
         return "http://maps.google.com/maps?q=" + address;
+    },
+    
+    search_word: function(word) {
+        $('#searchForm').addClass('uk-open');
+        var $ul = $('#searchForm ul').empty();
+        db.select('DISTINCT ken_name, city_name, town_name', 'city_name like ? or town_name like ? or city_furi like ? or town_furi like ?', ['%' + word + '%', '%' + word + '%', '%' + word + '%', '%' + word + '%'], function(rt, rs) {
+            var row = null;
+            for (var i = 0; i < rs.rows.length; i++) {
+                row = rs.rows.item(i);
+                $ul.append('<li>' + row.ken_name + row.city_name + row.town_name + '</li>');
+            }
+        });
     }
     
 };
 search.init();
 
-
+$('#searchInput').keyup(function () {
+    search.search_word(this.value);
+});

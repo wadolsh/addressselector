@@ -5,7 +5,9 @@
 button {
     margin: 4px;
 }
-
+.uk-search {
+    background-color: darkgray;
+}
 .uk-button {
     line-height: 22px;
 }

@@ -14,7 +14,7 @@
     <body>
     <div class="sidebar">
         <nav class="uk-navbar uk-navbar-attached">
-            <ul class="uk-navbar-nav uk-tab" data-uk-tab="{connect:'#main-switcher'}">
+            <ul class="uk-navbar-nav uk-tab">
                 <li><button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button></li>
             </ul>
         </nav>
@@ -23,12 +23,25 @@
     <div class="wrapper">
         <div style="z-index: 100" data-uk-sticky>
             <nav class="uk-navbar uk-navbar-attached">
-                <ul class="uk-navbar-nav uk-tab" data-uk-tab="{connect:'#main-switcher'}">
+                <ul class="uk-navbar-nav uk-tab">
                     <li><button id="select-ken" class="uk-button uk-button-success">***県</button></li>
                     <li><button id="select-city" class="uk-button uk-button-success">***市</button></li>
                     <li><button id="select-town" class="uk-button uk-button-success">***区</button></li>
                     <li><button id="select-block" class="uk-button uk-button-success">番地</button></li>
                 </ul>
+                <div class="uk-navbar-flip">
+                    <div class="uk-navbar-content">
+                        <form class="uk-search" data-uk-search id="searchForm">
+                            <input class="uk-search-field" type="search" placeholder="" id="searchInput">
+                            <button class="uk-search-close" type="reset"></button>
+                            <div class="uk-dropdown uk-dropdown-search">
+                                <ul class="uk-nav uk-nav-dropdown">
+                                    <li>aaaaa</li>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </nav>
         </div>
         <div class="uk-panel uk-panel-box">
@@ -69,13 +82,14 @@
 <div id="menu-offcanvas" class="uk-offcanvas">
     <div class="uk-offcanvas-bar">
         <ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
-            <li><button class="uk-button uk-button-primary" onclick="menu_func.reget_meta();">県リセット</button></li>
+            <li><a href="#" onclick="menu_func.reget_meta();">県リセット</a></li>
+            <li class="uk-nav-divider"></li>
+            <li><a href="#" onclick="db.dropTable();">DBリセット</a></li>
         </ul>
     </div>
 </div>
     
-    
-    
+
     <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
     <script src="uikit-2.0.0/js/uikit.min.js"></script>
     <script src="uikit-2.0.0/addons/js/sticky.js"></script>
