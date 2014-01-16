@@ -23,7 +23,7 @@
     <div class="wrapper">
         <div style="z-index: 100" data-uk-sticky>
             <nav class="uk-navbar uk-navbar-attached">
-                <ul class="uk-navbar-nav uk-tab">
+                <ul class="uk-navbar-nav uk-tab" data-uk-switcher="{connect:'#main-switcher'}">
                     <li><button id="select-ken" class="uk-button uk-button-success">***県</button></li>
                     <li><button id="select-city" class="uk-button uk-button-success">***市</button></li>
                     <li><button id="select-town" class="uk-button uk-button-success">***区</button></li>
