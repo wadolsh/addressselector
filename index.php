@@ -16,6 +16,7 @@
         <nav class="uk-navbar uk-navbar-attached">
             <ul class="uk-navbar-nav uk-tab">
                 <li><button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button></li>
+                <li id="status"></li>
             </ul>
         </nav>
         <div id="keep-list"></div>
@@ -28,6 +29,8 @@
                     <li><button id="select-city" class="uk-button uk-button-success">***市</button></li>
                     <li><button id="select-town" class="uk-button uk-button-success">***区</button></li>
                     <li><button id="select-block" class="uk-button uk-button-success">番地</button></li>
+                    <li class="uk-margin-left"><button id="select-nearby" class="uk-button uk-button-danger">周辺</button></li>
+                    <li class=""><button id="select-book" class="uk-button uk-button-danger">ブック</button></li>
                 </ul>
                 <div class="uk-navbar-flip">
                     <div class="uk-navbar-content">
@@ -36,26 +39,25 @@
                             <button class="uk-search-close" type="reset"></button>
                             <div class="uk-dropdown uk-dropdown-search">
                                 <ul class="uk-nav uk-nav-dropdown">
-                                    <li>aaaaa</li>
+                                    <li></li>
                                 </ul>
                             </div>
                         </form>
                     </div>
                 </div>
+
             </nav>
         </div>
         <div class="uk-panel uk-panel-box">
-        
             <div id="main-switcher" class="uk-switcher">
-                <div id="main-ken" class="uk-active">
-                </div>
+                <div id="main-ken" class="uk-active"></div>
                 <div id="main-city"></div>
                 <div id="main-town"></div>
                 <div id="main-block">
                     <input type="text" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
-                    <button class="uk-button uk-button-primary big-button" id="input-clear">クリア</button>
+                    <button class="uk-button uk-button-primary big-button" id="input-block-clear">クリア</button>
                     <div>
                         <button class="uk-button uk-button-primary big-num" data-num="1">1</button>
                         <button class="uk-button uk-button-primary big-num" data-num="2">2</button>
@@ -71,6 +73,21 @@
                         <button class="uk-button uk-button-primary big-delete" data-num="←">←</button>
                     </div>
                 </div>
+                <div id="main-nearby">
+                    <div>
+                        <button class="uk-button uk-button-primary big-button" onclick="menu_func.refresh_nearby();">周辺検索</button>
+                    </div>
+                    <div id="nearby-list"></div>
+                </div>
+                <div id="main-book">
+                    <div>
+                        <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium">
+                        <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium">
+                        <button class="uk-button uk-button-primary big-button" id="add-book">追加</button>
+                        <button class="uk-button uk-button-primary big-button" id="input-book-clear">クリア</button>
+                    </div>
+                    <div id="book-list"></div>
+                </div>
             </div>
         
         </div>
@@ -84,12 +101,25 @@
         <ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
             <li><a href="#" onclick="menu_func.reget_meta();">県リセット</a></li>
             <li class="uk-nav-divider"></li>
-            <li><a href="#" onclick="db.dropTable();">DBリセット</a></li>
+            <li><a href="#" onclick="db.dropTable();menu_func.reget_meta();location.reload();">初期化</a></li>
         </ul>
     </div>
 </div>
     
-
+    
+<!-- This is the modal -->
+<div id="modal" class="uk-modal">
+    <div class="uk-modal-dialog uk-modal-dialog-frameless">
+        <a href="" class="uk-modal-close uk-close uk-close-alt uk-hidden"></a>
+        <div id="modal-content">
+            <div id="modal-message"></div>
+            <div class="uk-progress">
+                <div class="uk-progress-bar" id="modal-progress" style="width: 0%;">0%</div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&sensor=true"></script>
     <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
     <script src="uikit-2.0.0/js/uikit.min.js"></script>
     <script src="uikit-2.0.0/addons/js/sticky.js"></script>

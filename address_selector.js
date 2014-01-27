@@ -1,17 +1,25 @@
 $.ajaxSetup({
-    async: false, 
-    type: "GET"
+    async: true, 
+    type: "GET",
+    beforeSend: function( jqXHR, settings ) {
+        modal.show('データ取得中。');
+        //stat.msg('データ取得中。');
+    },
+    complete: function( jqXHR, textStatus  ) {
+        modal.hide();
+        //stat.clear();
+    }
 });
 
 var mongo = {
     mongoDB: "address_selector",
     mongoAPIKey: "50ee07c6e4b0a0d1d01344f3",
     mongoBaseUrl: "https://api.mongolab.com/api/1",
-    url: function(col) {
-        return this.mongoBaseUrl + "/databases/" + this.mongoDB + "/collections/" + col + "?apiKey=" + this.mongoAPIKey + "&l=0";
+    url: function(col, sort) {
+        return this.mongoBaseUrl + "/databases/" + this.mongoDB + "/collections/" + col + "?apiKey=" + this.mongoAPIKey + "&l=0" + (sort ? '&s=' + sort : '');
     },
-    getCol: function(col, func) {
-        $.getJSON(this.url(col), func);
+    getCol: function(col, func, sort) {
+        $.getJSON(this.url(col, sort), func);
     }
 }
 
@@ -54,6 +62,8 @@ var db = {
         var dataArray = null;
         var insertSQL = 'INSERT INTO ' + this.table + ' VALUES(' + wildString + ')';
         
+        var total = list.length;
+        
         this.database.transaction(function (tx) {
             dataArray = [];
             $.each(list, function(key, data) {
@@ -62,8 +72,12 @@ var db = {
                 });
                 tx.executeSql(insertSQL, dataArray, db.success, db.error);
                 dataArray.length = 0;
+               modal.progress(total, key);
             });
+            
+            modal.hide();
         });
+        
         return this;
     },
     selectBySQL: function(sql, dataArray, func) {
@@ -77,13 +91,57 @@ var db = {
         });
     },
     success: function(obj) {
-        console.log('success');
+        //console.log('success');
     },
     error: function(obj) {
         console.log('error');
     }
     
 }.open().init();
+
+var stat = {
+    obj: $('#status'),
+    msg: function(m) {
+        this.obj.text(m);
+    },
+    clear: function() {
+        this.obj.text('');
+    }
+};
+
+var modal = {
+    m : new $.UIkit.modal.Modal("#modal"),
+    c : $('#model-content'),
+    p : $('#modal-progress'),
+    msg : $('#modal-message'),
+    init: function() {
+        this.m.options.bgclose = false;
+        $('#modal').on({
+            'uk.modal.show': function(){
+                console.log("Modal is visible.");
+            },
+            'uk.modal.hide': function(){
+                console.log("Element is not visible.");
+            }
+        });
+        return this;
+    },
+    progress : function(total, size) {
+        this.show();
+        this.p.css('widht', (total / size * 100) + '%').text(size + ' / ' + total);
+    },
+    hide: function() {
+        this.m.hide();
+        this.msg.text('');
+        this.p.css('widht', '0%').text('0%');
+    },
+    show: function(str) {
+        if (str) {
+            this.msg.text(str);
+        } 
+        this.m.show();
+    }
+}.init();
 
 
 var menu_func = {
@@ -96,6 +154,7 @@ var menu_func = {
             this.reget_meta();
         }
         this.refresh_block();
+        this.refresh_book();
         return this;
     },
     save_meta: function() {
@@ -116,11 +175,11 @@ var menu_func = {
         var $main_ken = $('#main-ken').empty();
         var $button = null;
         $.each(this._meta.ken, function(key, val) {
-            $button = $('<button class="uk-button ' + (val.dbsize > 0 ? 'uk-button-primary' : '' )  +  '" type="button">' + val.name + '(' + key + ')</button>')
+            $button = $('<button class="uk-button ' + (val.dbsize > 0 ? 'uk-button-primary' : '' )  +  '" type="button">' + val.name + '(' + val.num + ')</button>')
                         .appendTo($main_ken)
                         .click(function(event) {
                             if (val.dbsize > 0) {
-                                db.select('DISTINCT city_id, city_name, city_furi', 'ken_id = ' + key, null, function(rt, rs) {
+                                db.select('DISTINCT city_id, city_name, city_furi', 'ken_id = ' + val.num, null, function(rt, rs) {
                                     menu_func.refresh_city(rs.rows, val);
                                     $('#select-ken').html(val.name);
                                 });
@@ -177,10 +236,10 @@ var menu_func = {
             });
         });
         
-         $('#main-block .big-delete').click(function(event) {
-             var block = $inputBlock.val();
-             $inputBlock.val(block.slice(0, -1));
-         });
+        $('#main-block .big-delete').click(function(event) {
+            var block = $inputBlock.val();
+            $inputBlock.val(block.slice(0, -1));
+        });
         
         var $keepList = $('#keep-list');
         $('#address-keep').click(function(ind, obj) {
@@ -192,8 +251,33 @@ var menu_func = {
             search.map_open(search.now.get());
         });
         
-        $('#input-clear').click(function(event) {
+        $('#input-block-clear').click(function(event) {
             $inputBlock.val('');
+        });
+        
+        return this;
+    },
+    refresh_book: function() {
+        
+        var $bookList = $('#book-list');
+        $('#add-book').click(function(event) {
+            search.book.add();
+        });
+        
+        $('#input-book-clear').click(function(event) {
+            search.book.clear();
+        });
+        
+        return this;
+    },
+    refresh_nearby: function() {
+        map.geocoding.nearByCho(function(data) {
+           //console.log(data);
+            var $nearbyList = $('#nearby-list').empty();
+            $.each(data, function(ind, obj) {
+                $('<a href="' + search.map_url(obj.ken_name + obj.city_name + obj.town_name + obj.block_name) + '" class="uk-button uk-button-success">' + obj.block_name + '</a>')
+                    .appendTo($nearbyList);
+            });
         });
     },
     
@@ -202,8 +286,9 @@ var menu_func = {
             db.insert(data);
             jsonKen.dbsize = data.length;
             menu_func.save_meta();
+            menu_func.refresh_ken();
         });
-        this.refresh_ken();
+        
         return this;
     } 
 }.init().refresh_ken();
@@ -213,6 +298,9 @@ var search = {
         if (localStorage['keep']) {
             this.keep.data = JSON.parse(localStorage['keep']);
         }
+        if (localStorage['book']) {
+            this.book.data = JSON.parse(localStorage['book']);
+        }
         this.reflash();
         return this;
     },
@@ -220,6 +308,56 @@ var search = {
         data: [],
         save: function() {
             localStorage['keep'] = JSON.stringify(search.keep.data);
+        },
+        reflash: function() {
+            var $keepList = $('#keep-list').empty();
+            $.each(search.keep.data, function(ind, address) {
+                $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="' + search.map_url(address) + '">' + address + '</a></p></div>')
+                    .appendTo($keepList)
+                    .find('.uk-close').click(function(event) {
+                        var index = search.keep.data.indexOf(address);
+                        if (index > -1) {
+                            search.keep.data.splice(index, 1);
+                        }
+                        search.keep.save();
+                    });
+            });
+        }
+    },
+    book: {
+        data: [],
+        save: function() {
+            localStorage['book'] = JSON.stringify(search.book.data);
+        },
+        add: function() {
+            search.book.data.push({title : $('#input-book-title').val(), word : $('#input-book-word').val()});
+            search.book.save();
+            $('#input-book-title').val('');
+            $('#input-book-word').val('');
+            search.book.reflash();
+        },
+        del: function(ind) {
+            search.book.data.splice(ind, 1);
+            search.book.save();
+        },
+        clear: function() {
+            $('#input-book-title').val('');
+            $('#input-book-word').val('');
+        },
+        reflash: function() {
+            var $bookList = $('#book-list').empty();
+            $.each(search.book.data, function(ind, obj) {
+                $('<div class="uk-alert" data-uk-alert data-address="' + obj.word + '"><a href="" class="uk-alert-close uk-close"></a><a href="' + search.map_url(obj.word) + '" class="uk-button uk-button-danger">'
+                        + '<span class="uk-text-large uk-text-bold">' + obj.title + '</span><br/><span class="uk-text-small">' + obj.word + '</span></a></div>')
+                    .appendTo($bookList)
+                    .find('.uk-close').click(function(event) {
+                        if (confirm('削除してもよろしいでしょうか？')) {
+                            search.book.del(ind);
+                        } else {
+                            return false;
+                        }
+                    });
+            });
         }
     },
     now: {
@@ -239,24 +377,14 @@ var search = {
         add_history: function() {
             search.keep.data.push(this.address);
             search.keep.save();
-            
+            $('#input-block').val('');
             search.reflash();
         }
     },
     
     reflash: function() {
-        var $keepList = $('#keep-list').empty();
-        $.each(this.keep.data, function(ind, address) {
-            $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="' + search.map_url(address) + '">' + address + '</a></p></div>')
-                .appendTo($keepList)
-                .find('.uk-close').click(function(event) {
-                    var index = search.keep.data.indexOf(address);
-                    if (index > -1) {
-                        search.keep.data.splice(index, 1);
-                    }
-                    search.keep.save();
-                });
-        });
+        search.keep.reflash();
+        search.book.reflash();
         return this;
     },
     
@@ -287,3 +415,63 @@ search.init();
 $('#searchInput').keyup(function () {
     search.search_word(this.value);
 });
+
+
+var map = {
+    init: function() {
+        return this;
+    },
+    
+    nowPos: function(func) {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                func(position);
+            }, function() {
+                alert('現在位置取得不可1');
+            });
+        } else {
+            // Browser doesn't support Geolocation
+            alert('現在位置取得不可0');
+        }
+    },
+    
+    nowPosLatLng: function(func) {
+        map.nowPos(function(pos) {
+            func(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+        });
+    },
+    
+    geocoding : {
+        nearBy: function(func) {
+            map.nowPos(function(pos) {
+                $.get('http://maps.googleapis.com/maps/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, sensor: true}, function(data) {
+                    console.log(data);
+                    func(data);
+                });
+            });
+        },
+        nearByCho: function(func) {
+            map.geocoding.nearBy(function(data) {
+                var choData = new Array();
+                var block_name = null;
+                $.each(data.results, function(ind, obj) {
+                    $.each(obj.address_components, function(ind, address_selected) {
+                        block_name = address_selected.long_name;
+                        if(address_selected.types.indexOf('sublocality_level_1') >= 0){
+                            for (var i in choData) {
+                                if (choData[i].block_name == block_name) {
+                                    return false;
+                                }
+                            }
+                            choData.push({block_name: address_selected.long_name, town_name: obj.address_components[ind + 1].long_name, city_name: obj.address_components[ind + 2].long_name, ken_name: obj.address_components[ind + 3].long_name});
+                        }
+                    });
+                });
+                func(choData);
+            });
+        }
+    }
+}.init();
+
+
+
