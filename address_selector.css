@@ -10,7 +10,14 @@ button {
 }
 .uk-button {
     line-height: 22px;
+    border: 1px solid rgba(0,0,0,0.2);
 }
+
+.uk-alert {
+    border: 1px solid rgba(45,112,145,.3);
+}
+
+
 
 .sidebar {
     position: fixed;
@@ -34,12 +41,12 @@ button {
 }
 
 #main-city button {
-    min-width: 250px;
+    min-width: 240px;
     text-align: left;
 }
 
 #main-town button {
-    min-width: 250px;
+    min-width: 240px;
     text-align: left;
 }
 
@@ -65,6 +72,6 @@ button {
 }
 
 #nearby-list .uk-button {
-    width: 100px;
+    width: 180px;
     margin: 10px;
 }

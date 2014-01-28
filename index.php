@@ -34,14 +34,10 @@
                 </ul>
                 <div class="uk-navbar-flip">
                     <div class="uk-navbar-content">
-                        <form class="uk-search" data-uk-search id="searchForm">
+                        <form class="uk-search" data-uk-search id="searchForm" data-uk-search="{flipDropdown:true}">
                             <input class="uk-search-field" type="search" placeholder="" id="searchInput">
                             <button class="uk-search-close" type="reset"></button>
-                            <div class="uk-dropdown uk-dropdown-search">
-                                <ul class="uk-nav uk-nav-dropdown">
-                                    <li></li>
-                                </ul>
-                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -50,11 +46,27 @@
         </div>
         <div class="uk-panel uk-panel-box">
             <div id="main-switcher" class="uk-switcher">
-                <div id="main-ken" class="uk-active"></div>
-                <div id="main-city"></div>
-                <div id="main-town"></div>
+                <div id="main-ken" class="uk-active tmpl">
+                    ## $.each(data, function(key, val) { ##
+                        <button class="uk-button ##=(val.dbsize  ? 'uk-button-primary' : '')##" type="button" data-key="##=key##">##=val.name## (##=val.num##)</button>
+                    ## }); ##
+                </div>
+                <div id="main-city" class="tmpl">
+                    ## var row = null;
+                     _.each(data, function(obj, ind) {
+                     row = data.item(ind); ##
+                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">##=row.city_name##<br/>##=row.city_id##<br/>(##=row.city_furi##)</button>
+                    ## }); ##
+                </div>
+                <div id="main-town" class="tmpl">
+                    ## var row = null;
+                     _.each(data, function(obj, ind) {
+                     row = data.item(ind); ##
+                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">##=row.town_name##<br/>##=row.town_id##<br/>##=row.town_furi##</button>
+                    ## }); ##
+                </div>
                 <div id="main-block">
-                    <input type="text" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
+                    <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
                     <button class="uk-button uk-button-primary big-button" id="input-block-clear">クリア</button>
@@ -77,7 +89,13 @@
                     <div>
                         <button class="uk-button uk-button-primary big-button" onclick="menu_func.refresh_nearby();">周辺検索</button>
                     </div>
-                    <div id="nearby-list"></div>
+                    <div id="nearby-list" class="tmpl">
+                        ## $.each(data, function(ind, obj) { ##
+                            <a href="#" class="uk-button uk-button-success" data-ind="##=ind##">
+                                <span class="uk-text-large uk-text-bold">##=obj.town_name##</span><br/><span class="uk-text-small">##=(obj.ken_name + obj.city_name)##</span>
+                            </a>
+                        ## }); ##
+                    </div>
                 </div>
                 <div id="main-book">
                     <div>
@@ -86,7 +104,16 @@
                         <button class="uk-button uk-button-primary big-button" id="add-book">追加</button>
                         <button class="uk-button uk-button-primary big-button" id="input-book-clear">クリア</button>
                     </div>
-                    <div id="book-list"></div>
+                    <div id="book-list" class="tmpl">
+                        ## $.each(data, function(ind, obj) { ##
+                            <div class="uk-alert" data-uk-alert data-address="##=obj.word##">
+                                <a href="" class="uk-alert-close uk-close" data-ind="##=ind##"></a>
+                                <a href="##=search.map_url(obj.word)##" class="uk-button uk-button-danger">
+                                    <span class="uk-text-large uk-text-bold">##=obj.title##</span><br/><span class="uk-text-small">##=obj.word##</span>
+                                </a>
+                            </div>
+                        ## }); ##
+                    </div>
                 </div>
             </div>
         
@@ -101,7 +128,7 @@
         <ul class="uk-nav uk-nav-offcanvas" data-uk-nav>
             <li><a href="#" onclick="menu_func.reget_meta();">県リセット</a></li>
             <li class="uk-nav-divider"></li>
-            <li><a href="#" onclick="db.dropTable();menu_func.reget_meta();location.reload();">初期化</a></li>
+            <li><a href="#" onclick="menu_func.reset_all();">初期化</a></li>
         </ul>
     </div>
 </div>
@@ -121,6 +148,7 @@
 </div>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&sensor=true"></script>
     <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="underscore.js"></script>
     <script src="uikit-2.0.0/js/uikit.min.js"></script>
     <script src="uikit-2.0.0/addons/js/sticky.js"></script>
     <script src="address_selector.js"></script>
