@@ -45,12 +45,12 @@ button {
 }
 
 #main-city button {
-    min-width: 200px;
+    min-width: 190px;
     text-align: left;
 }
 
 #main-town button {
-    min-width: 200px;
+    min-width: 190px;
     text-align: left;
 }
 
