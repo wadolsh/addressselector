@@ -561,7 +561,7 @@ var map = {
     geocoding : {
         nearBy: function(func) {
             map.nowPos(function(pos) {
-                $.get('//maps.googleapis.com/maps/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, sensor: true}, function(data) {
+                $.get('//maps.googleapis.com/maps/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, language: 'ja', region: 'ja', sensor: true}, function(data) {
                     //console.log(data);
                     func(data);
                 });
