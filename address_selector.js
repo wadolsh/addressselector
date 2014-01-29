@@ -183,8 +183,10 @@ var menu_func = {
         } else {
             this.reget_meta();
         }
+        this.refresh_ken();
         this.refresh_block();
         this.refresh_book();
+        $('#main-ken').addClass('uk-active');
         return this;
     },
     save_meta: function() {
@@ -392,7 +394,7 @@ var menu_func = {
         });
     }
     
-}.init().refresh_ken();
+}.init();
 
 var search = {
     init: function() {

@@ -1,3 +1,7 @@
+.tmpl {
+    display: hidden;
+}
+
 .uk-grid+.uk-grid {
     margin-top: 0px;
 }

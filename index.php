@@ -46,7 +46,7 @@
         </div>
         <div class="uk-panel uk-panel-box">
             <div id="main-switcher" class="uk-switcher">
-                <div id="main-ken" class="uk-active tmpl">
+                <div id="main-ken" class="tmpl">
                     ## $.each(data, function(key, val) { ##
                         <button class="uk-button ##=(val.dbsize  ? 'uk-button-primary' : '')##" type="button" data-key="##=key##">##=val.name## (##=val.num##)</button>
                     ## }); ##
