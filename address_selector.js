@@ -14,7 +14,7 @@ $.ajaxSetup({
 var mongo = {
     mongoDB: "address_selector",
     mongoAPIKey: "50ee07c6e4b0a0d1d01344f3",
-    mongoBaseUrl: "//api.mongolab.com/api/1",
+    mongoBaseUrl: "https://api.mongolab.com/api/1",
     url: function(col, sort) {
         return this.mongoBaseUrl + "/databases/" + this.mongoDB + "/collections/" + col + "?apiKey=" + this.mongoAPIKey + "&l=0" + (sort ? '&s=' + sort : '');
     },
