@@ -35,7 +35,7 @@
                 <div class="uk-navbar-flip">
                     <div class="uk-navbar-content">
                         <form class="uk-search" data-uk-search id="searchForm" data-uk-search="{flipDropdown:true}">
-                            <input class="uk-search-field" type="search" placeholder="" id="searchInput">
+                            <input class="uk-search-field" type="search" placeholder="" id="searchInput" x-webkit-speech>
                             <button class="uk-search-close" type="reset"></button>
 
                         </form>
@@ -66,7 +66,7 @@
                     ## }); ##
                 </div>
                 <div id="main-block">
-                    <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
+                    <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium" x-webkit-speech>
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
                     <button class="uk-button uk-button-primary big-button" id="input-block-clear">クリア</button>
@@ -99,8 +99,8 @@
                 </div>
                 <div id="main-book">
                     <div>
-                        <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium">
-                        <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium">
+                        <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium" x-webkit-speech>
+                        <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium" x-webkit-speech>
                         <button class="uk-button uk-button-primary big-button" id="add-book">追加</button>
                         <button class="uk-button uk-button-primary big-button" id="input-book-clear">クリア</button>
                     </div>
