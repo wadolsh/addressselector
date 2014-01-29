@@ -55,14 +55,22 @@
                     ## var row = null;
                      _.each(data, function(obj, ind) {
                      row = data.item(ind); ##
-                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">##=row.city_name##<br/>##=row.city_id##<br/>(##=row.city_furi##)</button>
+                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">
+                            ##=row.city_name##<br/>
+                            ##=row.city_id##<br/>
+                            <span class="uk-text-small">##=row.city_furi##</span>
+                        </button>
                     ## }); ##
                 </div>
                 <div id="main-town" class="tmpl">
                     ## var row = null;
                      _.each(data, function(obj, ind) {
                      row = data.item(ind); ##
-                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">##=row.town_name##<br/>##=row.town_id##<br/>##=row.town_furi##</button>
+                        <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">
+                            ##=row.town_name##<br/>
+                            ##=row.town_id##<br/>
+                            <span class="uk-text-small">##=row.town_furi##</span>
+                        </button>
                     ## }); ##
                 </div>
                 <div id="main-block">
