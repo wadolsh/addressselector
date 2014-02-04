@@ -29,7 +29,7 @@ var db = {
     
     dbInfo : {
         name: 'address_selector',
-        size: 100 * 1024 * 1024,
+        size: 4 * 1024 * 1024,
         version: '1.0',
         description: '住所データ格納'
     },
@@ -44,6 +44,9 @@ var db = {
         return this;
     },
     init: function() {
+        if (!openDatabase) {
+            alert("正常に起動しないブラウザです。");
+        }
         this.database.transaction(function (tx) {
            tx.executeSql(db.createSQL);
         });
@@ -347,7 +350,7 @@ var menu_func = {
         return this;
     },
     refresh_nearby: function() {
-        map.geocoding.nearByCho(function(data) {
+        mapTools.geocoding.nearByCho(function(data) {
            //console.log(data);
            /*
             var $nearbyList = $('#nearby-list').empty();
@@ -534,8 +537,37 @@ $('#searchInput').keyup(function () {
 });
 
 
-var map = {
+var mapTools = {
+    aMap : null,
+    pos: null,
+    myMarker: null,
+    aMapMarkerArray: [],
+    
+    color: ['auqa', 'blue', 'lime', 'purple', 'maroon', 'navy', 'olive', 'green', 'orange', 'red', 'silver', 'teal', 'yellow', 'fuchsia', 'gray', 'black', 'white'],
     init: function() {
+        var that = this;
+        that.mapOptions = {
+            zoom: 12,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        this.aMap = new google.maps.Map(document.getElementById("map_canvas"), that.mapOptions);
+        this.myMarker = new google.maps.Marker({
+            map: that.aMap
+        });
+        
+        this.directions.directionsDisplay.setMap(this.aMap);
+        
+        
+        $('#modal_map').on({
+            'uk.modal.show': function(){
+                mapTools.aMap_render($('#keep-list .uk-alert'));
+                google.maps.event.trigger(that.aMap, 'resize');
+            },
+            'uk.modal.hide': function(){
+                mapTools.aMap_clear();
+            }
+        });
+        
         return this;
     },
     
@@ -553,14 +585,19 @@ var map = {
     },
     
     nowPosLatLng: function(func) {
-        map.nowPos(function(pos) {
-            func(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+        mapTools.nowPos(function(pos) {
+            mapTools.pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            if (mapTools.myMarker) {
+                mapTools.myMarker.setPosition(mapTools.pos);
+            }
+            func(mapTools.pos);
         });
     },
     
     geocoding : {
+        geocoder: new google.maps.Geocoder(),
         nearBy: function(func) {
-            map.nowPos(function(pos) {
+            mapTools.nowPos(function(pos) {
                 $.get('//maps.googleapis.com/maps/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, language: 'ja', region: 'ja', sensor: true}, function(data) {
                     //console.log(data);
                     func(data);
@@ -568,7 +605,7 @@ var map = {
             });
         },
         nearByCho: function(func) {
-            map.geocoding.nearBy(function(data) {
+            mapTools.geocoding.nearBy(function(data) {
                 var choData = new Array();
                 var town_name = null;
                 $.each(data.results, function(ind, obj) {
@@ -586,6 +623,95 @@ var map = {
                 });
                 func(choData);
             });
+        },
+        latLngByAddress: function(address, func) {
+            mapTools.geocoding.geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    //func(results[0].geometry.location);
+                    func(results[0].geometry.location);
+                } else {
+                    alert('Geocode失敗: ' + status);
+                }
+            });
         }
+    },
+    
+    directions: {
+        directionsDisplay: new google.maps.DirectionsRenderer(),
+        directionsService: new google.maps.DirectionsService(),
+        
+        calcRoute: function(marker, func) {
+            var requestOption = {
+                origin: mapTools.myMarker.getPosition(),
+                destination:marker.getPosition(),
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            mapTools.directions.directionsService.route(requestOption, function(response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    if (func) {
+                        func(response);
+                    }
+                }
+            });
+        }
+    },
+    
+    aMap_clear: function() {
+        $.each(mapTools.aMapMarkerArray, function(ind, marker) {
+            marker.setMap(null);
+        });
+        $('#map_address').empty();
+        return this;
+    },
+    aMap_render: function($address) {
+
+        this.nowPosLatLng(function(latLng) {
+            mapTools.myMarker.setPosition(latLng);
+            mapTools.aMap.setCenter(latLng);
+            
+            if (!$address) {
+                return this;
+            }
+            
+            var $mapAddress = $('#map_address');
+            $.each($address, function(ind, obj) {
+                var address = obj.dataset.address;
+                var color = mapTools.color[ind];
+                mapTools.geocoding.latLngByAddress(address, function(latLng) {
+                    var marker = new google.maps.Marker({
+                        icon: {
+                            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                            fillOpacity: 1,
+                            fillColor: color,
+                            strokeWeight: 0,
+                            scale: 4
+                        },
+                        map: mapTools.aMap,
+                        position:latLng,
+                    });
+                    
+                    
+                    mapTools.directions.calcRoute(marker, function(response) {
+                        //mapTools.directions.directionsDisplay.setDirections(response);
+                        var leg = response.routes[0].legs[0];
+                        $('<li><span style="color:' + color + '">■</span>' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</li>').appendTo($mapAddress).click(function(event) {
+                             google.maps.event.trigger(marker, "click");
+                             mapTools.directions.directionsDisplay.setDirections(response);
+                        });
+                    });
+                    
+                    google.maps.event.addListener(marker, 'click', function() {
+                        mapTools.aMap.setCenter(latLng);
+                    });
+                    
+                    mapTools.aMapMarkerArray.push(marker);
+                });
+            });
+        });
+        
+        return this;
     }
 }.init();
+
+
+

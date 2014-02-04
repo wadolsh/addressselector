@@ -16,6 +16,7 @@
         <nav class="uk-navbar uk-navbar-attached">
             <ul class="uk-navbar-nav uk-tab">
                 <li><button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button></li>
+                <li><a href="#modal_map" class="uk-button uk-button-expand" data-uk-modal>マップ表示</a></li>
                 <li id="status"></li>
             </ul>
         </nav>
@@ -34,8 +35,8 @@
                 </ul>
                 <div class="uk-navbar-flip">
                     <div class="uk-navbar-content">
-                        <form class="uk-search" data-uk-search id="searchForm" data-uk-search="{flipDropdown:true}">
-                            <input class="uk-search-field" type="search" placeholder="" id="searchInput" x-webkit-speech>
+                        <form class="uk-search" id="searchForm" data-uk-search="{flipDropdown:true}">
+                            <input class="uk-search-field" type="search" placeholder="" id="searchInput">
                             <button class="uk-search-close" type="reset"></button>
 
                         </form>
@@ -74,7 +75,7 @@
                     ## }); ##
                 </div>
                 <div id="main-block">
-                    <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium" x-webkit-speech>
+                    <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
                     <button class="uk-button uk-button-primary big-button" id="input-block-clear">クリア</button>
@@ -107,8 +108,8 @@
                 </div>
                 <div id="main-book">
                     <div>
-                        <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium" x-webkit-speech>
-                        <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium" x-webkit-speech>
+                        <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium">
+                        <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium">
                         <button class="uk-button uk-button-primary big-button" id="add-book">追加</button>
                         <button class="uk-button uk-button-primary big-button" id="input-book-clear">クリア</button>
                     </div>
@@ -154,7 +155,24 @@
         </div>
     </div>
 </div>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&sensor=true"></script>
+
+<div id="modal_map" class="uk-modal">
+    <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:800px; height:400px">
+        <a href="" class="uk-modal-close uk-close uk-close-alt"></a>
+        <div class="uk-grid" style="height:100%">
+            <div class="uk-width-1-4">
+                <ul id="map_address" class="uk-list uk-list-striped">
+                </ul>
+            </div>
+            <div class="uk-width-3-4" style="height:100%">
+                <div id="map_canvas" style="width:100%; height:100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&amp;sensor=true"></script>
     <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
     <script src="underscore.js"></script>
     <script src="uikit-2.0.0/js/uikit.min.js"></script>
