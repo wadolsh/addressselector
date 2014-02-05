@@ -157,7 +157,7 @@
 </div>
 
 <div id="modal_map" class="uk-modal">
-    <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:80%; height:80%">
+    <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:90%; height:85%">
         <a href="" class="uk-modal-close uk-close uk-close-alt" style="z-index:100000"></a>
         <div class="uk-grid" style="height:100%">
             <div class="uk-width-1-4">
