@@ -562,6 +562,7 @@ var mapTools = {
             'uk.modal.show': function(){
                 mapTools.aMap_render($('#keep-list .uk-alert'));
                 google.maps.event.trigger(that.aMap, 'resize');
+                $(this).resize();
             },
             'uk.modal.hide': function(){
                 mapTools.aMap_clear();

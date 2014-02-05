@@ -7,11 +7,11 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <title>住所入力</title>
-        <link rel="stylesheet" href="uikit-2.0.0/css/uikit.min.css" />
+        <link rel="stylesheet" href="uikit-2.3.1/css/uikit.min.css" />
         <link rel="stylesheet" href="address_selector.css" />
         <link rel="shortcut icon" sizes="196x196" href="/icon.jpg">
     </head>
-    <body>
+    <body style="width:100%">
     <div class="sidebar">
         <nav class="uk-navbar uk-navbar-attached">
             <ul class="uk-navbar-nav uk-tab">
@@ -157,8 +157,8 @@
 </div>
 
 <div id="modal_map" class="uk-modal">
-    <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:800px; height:400px">
-        <a href="" class="uk-modal-close uk-close uk-close-alt"></a>
+    <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:80%; height:80%">
+        <a href="" class="uk-modal-close uk-close uk-close-alt" style="z-index:100000"></a>
         <div class="uk-grid" style="height:100%">
             <div class="uk-width-1-4">
                 <ul id="map_address" class="uk-list uk-list-striped">
@@ -175,8 +175,8 @@
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&amp;sensor=true"></script>
     <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
     <script src="underscore.js"></script>
-    <script src="uikit-2.0.0/js/uikit.min.js"></script>
-    <script src="uikit-2.0.0/addons/js/sticky.js"></script>
+    <script src="uikit-2.3.1/js/uikit.min.js"></script>
+    <script src="uikit-2.3.1/addons/js/sticky.js"></script>
     <script src="address_selector.js"></script>
     </body>
 </html>

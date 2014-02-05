@@ -1,3 +1,8 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
 .tmpl {
     display: hidden;
 }
@@ -24,13 +29,14 @@ button {
 
 
 .sidebar {
-    position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 1;
     width: 30%;
     border-right: 1px solid rgba(0,0,0,0.1);
+    height: 100%;
+    background-color: grey;
 }
 .wrapper {
     position: absolute;
