@@ -16,7 +16,7 @@
         <nav class="uk-navbar uk-navbar-attached">
             <ul class="uk-navbar-nav uk-tab">
                 <li><button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button></li>
-                <li><a href="#modal_map" class="uk-button uk-button-expand" data-uk-modal>マップ表示</a></li>
+                <li><button class="uk-button uk-button-expand" data-uk-modal="{target:'#modal_map'}">マップ表示</button></li>
                 <li id="status"></li>
             </ul>
         </nav>
