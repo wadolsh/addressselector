@@ -26,7 +26,11 @@ button {
     border: 1px solid rgba(45,112,145,.3);
 }
 
-
+.uk-badge {
+    font-size: 14px;
+    line-height: 24px;
+    background-color: #777;
+}
 
 .sidebar {
     top: 0;

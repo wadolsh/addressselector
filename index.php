@@ -54,8 +54,15 @@
                 </div>
                 <div id="main-city" class="tmpl">
                     ## var row = null;
+                     var prefix = null;
                      _.each(data, function(obj, ind) {
-                     row = data.item(ind); ##
+                     row = data.item(ind); 
+                     if (prefix != row.city_furi.charAt(0)) {
+                        prefix = row.city_furi.charAt(0);
+                    ##
+                        <br/><br/><div class="uk-badge">##=prefix##</div><br/>
+                    ##}##
+                     
                         <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">
                             ##=row.city_name##<br/>
                             ##=row.city_id##<br/>
@@ -65,8 +72,14 @@
                 </div>
                 <div id="main-town" class="tmpl">
                     ## var row = null;
+                     var prefix = null;
                      _.each(data, function(obj, ind) {
-                     row = data.item(ind); ##
+                     row = data.item(ind);
+                     if (prefix != row.town_furi.charAt(0)) {
+                        prefix = row.town_furi.charAt(0);
+                    ##
+                        <br/><br/><div class="uk-badge">##=prefix##</div><br/>
+                    ##}##
                         <button class="uk-button uk-button-primary" type="button" data-ind="##=ind##">
                             ##=row.town_name##<br/>
                             ##=row.town_id##<br/>

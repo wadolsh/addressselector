@@ -578,6 +578,9 @@ var mapTools = {
                 func(position);
             }, function() {
                 alert('現在位置取得不可1');
+                var dumy = {};
+                dumy.coords = {latitude : 35.466271, longitude: 139.622790};
+                func(dumy);
             });
         } else {
             // Browser doesn't support Geolocation
@@ -695,9 +698,13 @@ var mapTools = {
                     mapTools.directions.calcRoute(marker, function(response) {
                         //mapTools.directions.directionsDisplay.setDirections(response);
                         var leg = response.routes[0].legs[0];
-                        $('<li><span style="color:' + color + '">■</span>' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</li>').appendTo($mapAddress).click(function(event) {
+                        var $markerLi = $('<li><div class="uk-grid"><div class="uk-width-2-10"><button class="uk-icon-button uk-icon-location-arrow"></button></div><div class="uk-width-8-10"><span style="color:' + color + '">■</span>' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</div></div></li>').appendTo($mapAddress);
+                        $markerLi.find('.uk-width-8-10').click(function(event) {
                              google.maps.event.trigger(marker, "click");
                              mapTools.directions.directionsDisplay.setDirections(response);
+                        });
+                        $markerLi.find('.uk-icon-location-arrow').click(function(event) {
+                            search.map_open(address);
                         });
                     });
                     
