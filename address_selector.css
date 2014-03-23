@@ -32,6 +32,10 @@ button {
     background-color: #777;
 }
 
+.uk-scrollable-text {
+    max-height: 90%;
+}
+
 .sidebar {
     top: 0;
     bottom: 0;

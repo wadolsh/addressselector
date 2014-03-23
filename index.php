@@ -20,7 +20,7 @@
                 <li id="status"></li>
             </ul>
         </nav>
-        <div id="keep-list"></div>
+        <div id="keep-list" class="uk-scrollable-text"></div>
     </div>
     <div class="wrapper">
         <div style="z-index: 100" data-uk-sticky>
@@ -173,7 +173,7 @@
     <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:90%; height:85%">
         <a href="" class="uk-modal-close uk-close uk-close-alt" style="z-index:100000"></a>
         <div class="uk-grid" style="height:100%">
-            <div class="uk-width-1-4">
+            <div class="uk-width-1-4 uk-scrollable-text">
                 <ul id="map_address" class="uk-list uk-list-striped">
                 </ul>
             </div>
