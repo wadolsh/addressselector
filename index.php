@@ -46,13 +46,13 @@
             </nav>
         </div>
         <div class="uk-panel uk-panel-box">
-            <div id="main-switcher" class="uk-switcher uk-scrollable-text">
-                <div id="main-ken" class="tmpl">
+            <div id="main-switcher" class="uk-switcher">
+                <div id="main-ken" class="tmpl uk-scrollable-text">
                     ## $.each(data, function(key, val) { ##
                         <button class="uk-button ##=(val.dbsize  ? 'uk-button-primary' : '')##" type="button" data-key="##=key##">##=val.name## (##=val.num##)</button>
                     ## }); ##
                 </div>
-                <div id="main-city" class="tmpl">
+                <div id="main-city" class="tmpl uk-scrollable-text">
                     ## var row = null;
                      var prefix = null;
                      _.each(data, function(obj, ind) {
@@ -70,7 +70,7 @@
                         </button>
                     ## }); ##
                 </div>
-                <div id="main-town" class="tmpl">
+                <div id="main-town" class="tmpl uk-scrollable-text">
                     ## var row = null;
                      var prefix = null;
                      _.each(data, function(obj, ind) {
@@ -87,7 +87,7 @@
                         </button>
                     ## }); ##
                 </div>
-                <div id="main-block">
+                <div id="main-block uk-scrollable-text">
                     <input type="tel" id="input-block" placeholder="番地入力" class="uk-form-width-medium">
                     <button class="uk-button uk-button-primary big-button" id="address-keep">追加</button>
                     <button class="uk-button uk-button-primary big-button" id="open-map">地図</button>
@@ -107,7 +107,7 @@
                         <button class="uk-button uk-button-primary big-delete" data-num="←">←</button>
                     </div>
                 </div>
-                <div id="main-nearby">
+                <div id="main-nearby uk-scrollable-text">
                     <div>
                         <button class="uk-button uk-button-primary big-button" onclick="menu_func.refresh_nearby();">周辺検索</button>
                     </div>
@@ -119,7 +119,7 @@
                         ## }); ##
                     </div>
                 </div>
-                <div id="main-book">
+                <div id="main-book uk-scrollable-text">
                     <div>
                         <input type="text" id="input-book-title" placeholder="表示名" class="uk-form-width-medium">
                         <input type="text" id="input-book-word" placeholder="検索語" class="uk-form-width-medium">
