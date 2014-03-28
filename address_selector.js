@@ -507,11 +507,11 @@ var search = {
     
     map_open: function(address) {
         //location.href = "geo:0,0?q=" + address;
-        location.href = "//maps.google.com/maps?q=" + address;
+        location.href = "https://maps.google.com/maps?q=" + address;
     },
     
     map_url: function (address) {
-        return "//maps.google.com/maps?q=" + address;
+        return "https://maps.google.com/maps?q=" + address;
     },
     
     search_word: function(word) {
