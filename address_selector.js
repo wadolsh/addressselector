@@ -506,12 +506,14 @@ var search = {
     },
     
     map_open: function(address) {
+        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : "//maps.google.com/maps?q=";
         //location.href = "geo:0,0?q=" + address;
-        location.href = "http://maps.google.com/maps?q=" + address;
+        location.href = href + address;
     },
     
     map_url: function (address) {
-        return "http://maps.google.com/maps?q=" + address;
+        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : "//maps.google.com/maps?q=";
+        return href + address;
     },
     
     search_word: function(word) {
