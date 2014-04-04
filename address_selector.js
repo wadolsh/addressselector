@@ -532,7 +532,6 @@ var search = {
     }
     
 };
-search.init();
 
 $('#searchInput').keyup(function () {
     search.search_word(this.value);
@@ -723,6 +722,8 @@ var mapTools = {
         return this;
     }
 }.init();
+
+search.init();
 
 
 
