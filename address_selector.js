@@ -506,13 +506,13 @@ var search = {
     },
     
     map_open: function(address) {
-        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : "//maps.google.com/maps?q=";
+        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : mapTools.url + "?q=";
         //location.href = "geo:0,0?q=" + address;
         location.href = href + address;
     },
     
     map_url: function (address) {
-        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : "//maps.google.com/maps?q=";
+        var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : mapTools.url + "?q=";
         return href + address;
     },
     
@@ -540,6 +540,7 @@ $('#searchInput').keyup(function () {
 
 
 var mapTools = {
+    url: "https://maps.google.com/maps",
     aMap : null,
     pos: null,
     myMarker: null,
@@ -604,7 +605,7 @@ var mapTools = {
         geocoder: new google.maps.Geocoder(),
         nearBy: function(func) {
             mapTools.nowPos(function(pos) {
-                $.get('//maps.googleapis.com/maps/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, language: 'ja', region: 'ja', sensor: true}, function(data) {
+                $.get(mapTools.url + '/api/geocode/json', {latlng: pos.coords.latitude + ',' + pos.coords.longitude, language: 'ja', region: 'ja', sensor: true}, function(data) {
                     //console.log(data);
                     func(data);
                 });
