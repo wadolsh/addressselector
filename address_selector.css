@@ -36,6 +36,10 @@ button {
     max-height: 90%;
 }
 
+.uk-alert.selected {
+    background-color: #FFADAD;
+}
+
 .sidebar {
     top: 0;
     bottom: 0;

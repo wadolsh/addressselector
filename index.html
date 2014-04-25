@@ -16,7 +16,6 @@
         <nav class="uk-navbar uk-navbar-attached">
             <ul class="uk-navbar-nav uk-tab">
                 <li><button class="uk-button uk-button-expand" data-uk-offcanvas="{target:'#menu-offcanvas'}">Menu</button></li>
-                <li><button class="uk-button uk-button-expand" data-uk-modal="{target:'#modal_map'}">マップ表示</button></li>
                 <li id="status"></li>
             </ul>
         </nav>
@@ -25,13 +24,15 @@
     <div class="wrapper">
         <div style="z-index: 100" data-uk-sticky>
             <nav class="uk-navbar uk-navbar-attached">
-                <ul class="uk-navbar-nav uk-tab" data-uk-switcher="{connect:'#main-switcher'}">
+                <ul id="main-switcher-ul" class="uk-navbar-nav uk-tab" data-uk-switcher="{connect:'#main-switcher'}">
                     <li><button id="select-ken" class="uk-button uk-button-success">***県</button></li>
                     <li><button id="select-city" class="uk-button uk-button-success">***市</button></li>
                     <li><button id="select-town" class="uk-button uk-button-success">***区</button></li>
                     <li><button id="select-block" class="uk-button uk-button-success">番地</button></li>
+                    
                     <li class="uk-margin-left"><button id="select-nearby" class="uk-button uk-button-danger">周辺</button></li>
                     <li class=""><button id="select-book" class="uk-button uk-button-danger">ブック</button></li>
+                    <li id="li-map"><button id="select-map" class="uk-button uk-button-expand">マップ表示</button></li>
                 </ul>
                 <div class="uk-navbar-flip">
                     <div class="uk-navbar-content">
@@ -136,6 +137,14 @@
                         ## }); ##
                     </div>
                 </div>
+                
+                <div id="main-map" style="height:300px">
+                    <div id="map_canvas" style="width:100%; height:100%"></div>
+                </div>
+                
+                <div id="main-search">
+
+                </div>
             </div>
         
         </div>
@@ -168,6 +177,7 @@
     </div>
 </div>
 
+<!--
 <div id="modal_map" class="uk-modal">
     <div class="uk-modal-dialog uk-modal-dialog-frameless" style="width:90%; height:85%">
         <a href="" class="uk-modal-close uk-close uk-close-alt" style="z-index:100000"></a>
@@ -182,6 +192,7 @@
         </div>
     </div>
 </div>
+-->
 
 
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDejNEedWnONLDewIynvzf6Wv-aI4sd3eU&amp;sensor=true"></script>

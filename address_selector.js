@@ -190,6 +190,25 @@ var menu_func = {
         this.refresh_block();
         this.refresh_book();
         $('#main-ken').addClass('uk-active');
+
+        $('#main-switcher-ul').on({
+            'uk.switcher.show': function(event, area){
+                if (area[0].id == "li-map") {
+                    mapTools.aMap_render($('#keep-list .uk-alert'));
+                    google.maps.event.trigger(mapTools.aMap, 'resize');
+                    $('#main-map').height($('body').height() - 70).resize();
+                }
+                return area;
+            },
+            'uk.switcher.hide': function(event, area){
+                if (area[0].id == "li-map") {
+                    mapTools.aMap_clear();
+                }
+                
+            }
+        });
+
+        
         return this;
     },
     save_meta: function() {
@@ -418,15 +437,18 @@ var search = {
         reflash: function() {
             var $keepList = $('#keep-list').empty();
             $.each(search.keep.data, function(ind, address) {
-                $('<div class="uk-alert" data-uk-alert data-address="' + address + '"><a href="" class="uk-alert-close uk-close"></a><p><a href="' + search.map_url(address) + '">' + address + '</a></p></div>')
-                    .appendTo($keepList)
-                    .find('.uk-close').click(function(event) {
+                var $addressLine = $('<div class="uk-alert uk-grid" data-uk-alert data-address="' + address + '"><a href="' + search.map_url(address) + '" class="uk-button uk-icon-small uk-icon-location-arrow uk-width-1-6"></a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
+                    .appendTo($keepList);
+                $addressLine.find('.uk-close').click(function(event) {
                         var index = search.keep.data.indexOf(address);
                         if (index > -1) {
                             search.keep.data.splice(index, 1);
                         }
                         search.keep.save();
                     });
+                $addressLine.find('.address-line').click(function(){
+                    $('#select-map').click();
+                });
             });
         }
     },
@@ -559,7 +581,7 @@ var mapTools = {
         
         this.directions.directionsDisplay.setMap(this.aMap);
         
-        
+        /*
         $('#modal_map').on({
             'uk.modal.show': function(){
                 mapTools.aMap_render($('#keep-list .uk-alert'));
@@ -570,6 +592,7 @@ var mapTools = {
                 mapTools.aMap_clear();
             }
         });
+        */
         
         return this;
     },
@@ -696,16 +719,25 @@ var mapTools = {
                         position:latLng,
                     });
                     
-                    
                     mapTools.directions.calcRoute(marker, function(response) {
                         //mapTools.directions.directionsDisplay.setDirections(response);
                         var leg = response.routes[0].legs[0];
-                        var $markerLi = $('<li><div class="uk-grid"><div class="uk-width-2-10"><button class="uk-icon-button uk-icon-location-arrow"></button></div><div class="uk-width-8-10"><span style="color:' + color + '">■</span><span class="address">' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</span></div></div></li>').appendTo($mapAddress);
-                        $markerLi.find('.address').click(function(event) {
-                             google.maps.event.trigger(marker, "click");
-                             mapTools.directions.directionsDisplay.setDirections(response);
+                        var $markerLi = $(obj);
+                        $markerLi.find('.info-line').html('<br/>[' + leg.distance.text + ', ' + leg.duration.text + ']');
+                        $markerLi.find('.uk-icon-location-arrow').css('color', color);
+                        //var $markerLi = $('<li><div class="uk-grid"><div class="uk-width-2-10"><button class="uk-icon-button uk-icon-location-arrow"></button></div><div class="uk-width-8-10"><span style="color:' + color + '">■</span><span class="address">' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</span></div></div></li>').appendTo($mapAddress);
+                        $markerLi.find('.address-line').click(function(event) {
+                            var $mapArea = $('#main-map');
+                            if (!$mapArea.hasClass('uk-active')) {
+                                $('#select-map').click();
+                            }
+                            var $this = $(this);
+                            $('#keep-list').find('.selected').removeClass('selected');
+                            $this.parent().addClass('selected');
+                            google.maps.event.trigger(marker, "click");
+                            mapTools.directions.directionsDisplay.setDirections(response);
                         });
-                        $markerLi.find('.uk-icon-location-arrow').click(function(event) {
+                        $markerLi.find('button').click(function(event) {
                             search.map_open(address);
                         });
                     });
