@@ -196,7 +196,7 @@ var menu_func = {
                 if (area[0].id == "li-map") {
                     mapTools.aMap_render($('#keep-list .uk-alert'));
                     google.maps.event.trigger(mapTools.aMap, 'resize');
-                    $('#main-map').height($('body').height() - 70).resize();
+                    $('#main-map').height($('body').height() - 80).resize();
                 }
                 return area;
             },
