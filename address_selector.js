@@ -194,6 +194,7 @@ var menu_func = {
         $('#main-switcher-ul').on({
             'uk.switcher.show': function(event, area){
                 if (area[0].id == "li-map") {
+                    mapTools.aMap_clear();
                     mapTools.aMap_render($('#keep-list .uk-alert'));
                     google.maps.event.trigger(mapTools.aMap, 'resize');
                     $('#main-map').height($('body').height() - 80).resize();
@@ -689,7 +690,7 @@ var mapTools = {
         $.each(mapTools.aMapMarkerArray, function(ind, marker) {
             marker.setMap(null);
         });
-        $('#map_address').empty();
+        //$('#map_address').empty();
         return this;
     },
     aMap_render: function($address) {
