@@ -40,6 +40,11 @@ button {
     background-color: #FFADAD;
 }
 
+.uk-alert.error {
+    background-color: #A2A2A2;
+}
+
+
 .sidebar {
     top: 0;
     bottom: 0;

@@ -133,7 +133,7 @@ var tmpl = {
 
 
 var stat = {
-    obj: $('#status'),
+    obj: $('#listStatus'),
     msg: function(m) {
         this.obj.text(m);
     },
@@ -179,6 +179,7 @@ var modal = {
 
 var menu_func = {
     _meta: {},
+    checkDirections: false,
     init: function() {
         // 初期化データ取得
         if (localStorage._meta) {
@@ -190,14 +191,21 @@ var menu_func = {
         this.refresh_block();
         this.refresh_book();
         $('#main-ken').addClass('uk-active');
-
+        
+        $('#reflash-directions').on('click', function() {
+            mapTools.aMap_clear();
+            mapTools.aMap_render($('#keep-list .uk-alert'));
+            menu_func.checkDirections = true;
+        });
+        
         $('#main-switcher-ul').on({
             'uk.switcher.show': function(event, area){
                 if (area[0].id == "li-map") {
-                    mapTools.aMap_clear();
-                    mapTools.aMap_render($('#keep-list .uk-alert'));
                     google.maps.event.trigger(mapTools.aMap, 'resize');
-                    $('#main-map').height($('body').height() - 80).resize();
+                    $('#main-map').height($('body').height() - 82).resize();
+                    if (!menu_func.checkDirections) {
+                        $('#reflash-directions').click();
+                    }
                 }
                 return area;
             },
@@ -343,7 +351,7 @@ var menu_func = {
         var $keepList = $('#keep-list');
         $('#address-keep').click(function(ind, obj) {
             search.now.get();
-            search.now.add_history();
+            search.now.add_keep();
         });
         
         $('#open-map').click(function(event) {
@@ -431,25 +439,80 @@ var search = {
         return this;
     },
     keep: {
+        $keepList: $('#keep-list'),
         data: [],
         save: function() {
             localStorage['keep'] = JSON.stringify(search.keep.data);
         },
         reflash: function() {
-            var $keepList = $('#keep-list').empty();
-            $.each(search.keep.data, function(ind, address) {
-                var $addressLine = $('<div class="uk-alert uk-grid" data-uk-alert data-address="' + address + '"><a href="' + search.map_url(address) + '" class="uk-button uk-icon-small uk-icon-location-arrow uk-width-1-6"></a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
-                    .appendTo($keepList);
-                $addressLine.find('.uk-close').click(function(event) {
-                        var index = search.keep.data.indexOf(address);
-                        if (index > -1) {
-                            search.keep.data.splice(index, 1);
-                        }
-                        search.keep.save();
-                    });
-                $addressLine.find('.address-line').click(function(){
-                    $('#select-map').click();
+            search.keep.$keepList.empty();
+            search.keep.recursionAdd(search.keep.data, 0);
+        },
+        
+        recursionAdd: function(addressArray, ind) {
+            if (addressArray.length < 1) {
+                return;
+            }
+            search.keep.add(addressArray[ind], function() {
+                stat.msg((ind + 1) + ' / ' + addressArray.length);
+                if (addressArray.length > ind + 1) {
+                    setTimeout(function() {
+                        search.keep.recursionAdd(addressArray, ind + 1);
+                    }, ind * 45);
+                }
+            });
+        },
+        
+        add: function(address, func) {
+            var idx = (search.keep.$keepList.find('[data-idx]:last').data('idx') || 0) + 1;
+            var $addressLine = $('<div class="uk-alert uk-grid" data-uk-alert data-address="' + address + '" data-idx="' + idx + '"><a href="' + search.map_url(address) + '" class="uk-button uk-width-1-6">' + idx + '</a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
+                .appendTo(search.keep.$keepList);
+            
+            $addressLine.find('.uk-close').click(function(event) {
+                var index = search.keep.data.indexOf(address);;
+                if (index > -1) {
+                    search.keep.data.splice(index, 1);
+                }
+                search.keep.save();
+                if ($addressLine.hasClass('selected')) {
+                    mapTools.directions.directionsDisplay.setMap(null);
+                }
+                if ($addressLine[0].marker) {
+                    $addressLine[0].marker.setMap(null);
+                }
+            });
+            
+            mapTools.geocoding.latLngByAddress(address, function(latLng) {
+                if (func) {
+                    func();
+                }
+                if (!latLng) {
+                    $addressLine.addClass('error');
+                    return;
+                }
+                var marker = new google.maps.Marker({
+                    /*
+                    icon: {
+                        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                        fillOpacity: 1,
+                        fillColor: color,
+                        strokeWeight: 0,
+                        scale: 4
+                    },
+                    */
+                    icon : 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld=' + idx + '|00a8e6|000000',
+                    map: mapTools.aMap,
+                    position:latLng,
                 });
+                google.maps.event.addListener(marker, 'click', function() {
+                    mapTools.aMap.setCenter(latLng);
+                });
+                
+                $addressLine[0].marker = marker;
+                // $addressLine.find('button').click(function(event) {
+                //     search.map_open(address);
+                // });
+                mapTools.aMapMarkerArray.push(marker);
             });
         }
     },
@@ -514,11 +577,15 @@ var search = {
             this.address = this.ken + this.city + this.town + this.block;
             return this.address;
         },
-        add_history: function() {
+        add_keep: function() {
+            if (search.keep.data.indexOf(this.address) > -1) {
+                console.log('重複アドレス:' + this.address);
+                return;
+            }
             search.keep.data.push(this.address);
             search.keep.save();
+            search.keep.add(this.address);
             $('#input-block').val('');
-            search.reflash();
         }
     },
     
@@ -581,19 +648,6 @@ var mapTools = {
         });
         
         this.directions.directionsDisplay.setMap(this.aMap);
-        
-        /*
-        $('#modal_map').on({
-            'uk.modal.show': function(){
-                mapTools.aMap_render($('#keep-list .uk-alert'));
-                google.maps.event.trigger(that.aMap, 'resize');
-                $(this).resize();
-            },
-            'uk.modal.hide': function(){
-                mapTools.aMap_clear();
-            }
-        });
-        */
         
         return this;
     },
@@ -660,7 +714,9 @@ var mapTools = {
                     //func(results[0].geometry.location);
                     func(results[0].geometry.location);
                 } else {
-                    alert('Geocode失敗: ' + status);
+                    console.log('Geocode失敗: ' + status  + '：' + address);
+                    //mapTools.geocoding.latLngByAddress(address, func);
+                    func(null);
                 }
             });
         }
@@ -669,32 +725,71 @@ var mapTools = {
     directions: {
         directionsDisplay: new google.maps.DirectionsRenderer(),
         directionsService: new google.maps.DirectionsService(),
-        
-        calcRoute: function(marker, func) {
+        calcRoute: function(addressObj, func) {
+            var marker = addressObj.marker;
             var requestOption = {
                 origin: mapTools.myMarker.getPosition(),
-                destination:marker.getPosition(),
+                destination: marker.getPosition(),
                 travelMode: google.maps.TravelMode.DRIVING
             };
             mapTools.directions.directionsService.route(requestOption, function(response, status) {
+                var $markerObj = $(addressObj);
                 if (status == google.maps.DirectionsStatus.OK) {
-                    if (func) {
-                        func(response);
-                    }
+                    
+                    //mapTools.directions.directionsDisplay.setDirections(response);
+                    var leg = response.routes[0].legs[0];
+                    
+                    $markerObj.find('.info-line').html('<br/>[' + leg.distance.text + ', ' + leg.duration.text + ']');
+
+                    $markerObj.find('.address-line').click(function(event) {
+                        mapTools.directions.directionsDisplay.setMap(mapTools.aMap);
+                        var $mapArea = $('#main-map');
+                        if (!$mapArea.hasClass('uk-active')) {
+                            $('#select-map').click();
+                        }
+                        var $this = $(this);
+                        $('#keep-list').find('.selected').removeClass('selected');
+                        $this.parent().addClass('selected');
+                        google.maps.event.trigger(marker, "click");
+                        mapTools.directions.directionsDisplay.setDirections(response);
+                    });
+                } else {
+                    console.log('Route失敗: ' + status);
+                    //mapTools.directions.calcRoute(marker, func);
+                    $markerObj.find('.info-line').html('<br/>[' + status +  ']');
+                    wait(1000);
+                }
+                if (func) {
+                    func();
                 }
             });
-        }
+
+        },
+        recursionCalcRoute: function(addressObjArray, ind) {
+            if (addressObjArray.length < 1) {
+                return;
+            }
+            mapTools.directions.calcRoute(addressObjArray[ind], function() {
+                if (addressObjArray.length > ind + 1) {
+                    setTimeout(function() {
+                        mapTools.directions.recursionCalcRoute(addressObjArray, ind + 1);
+                    }, ind * 45);
+                }
+            });
+        },
     },
     
     aMap_clear: function() {
+        
+        /*
         $.each(mapTools.aMapMarkerArray, function(ind, marker) {
             marker.setMap(null);
         });
+        */
         //$('#map_address').empty();
         return this;
     },
     aMap_render: function($address) {
-
         this.nowPosLatLng(function(latLng) {
             mapTools.myMarker.setPosition(latLng);
             mapTools.aMap.setCenter(latLng);
@@ -703,53 +798,7 @@ var mapTools = {
                 return this;
             }
             
-            var $mapAddress = $('#map_address');
-            $.each($address, function(ind, obj) {
-                var address = obj.dataset.address;
-                var color = mapTools.color[ind];
-                mapTools.geocoding.latLngByAddress(address, function(latLng) {
-                    var marker = new google.maps.Marker({
-                        icon: {
-                            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                            fillOpacity: 1,
-                            fillColor: color,
-                            strokeWeight: 0,
-                            scale: 4
-                        },
-                        map: mapTools.aMap,
-                        position:latLng,
-                    });
-                    
-                    mapTools.directions.calcRoute(marker, function(response) {
-                        //mapTools.directions.directionsDisplay.setDirections(response);
-                        var leg = response.routes[0].legs[0];
-                        var $markerLi = $(obj);
-                        $markerLi.find('.info-line').html('<br/>[' + leg.distance.text + ', ' + leg.duration.text + ']');
-                        $markerLi.find('.uk-icon-location-arrow').css('color', color);
-                        //var $markerLi = $('<li><div class="uk-grid"><div class="uk-width-2-10"><button class="uk-icon-button uk-icon-location-arrow"></button></div><div class="uk-width-8-10"><span style="color:' + color + '">■</span><span class="address">' + address + ' [' + leg.distance.text + ', ' + leg.duration.text + ']</span></div></div></li>').appendTo($mapAddress);
-                        $markerLi.find('.address-line').click(function(event) {
-                            var $mapArea = $('#main-map');
-                            if (!$mapArea.hasClass('uk-active')) {
-                                $('#select-map').click();
-                            }
-                            var $this = $(this);
-                            $('#keep-list').find('.selected').removeClass('selected');
-                            $this.parent().addClass('selected');
-                            google.maps.event.trigger(marker, "click");
-                            mapTools.directions.directionsDisplay.setDirections(response);
-                        });
-                        $markerLi.find('button').click(function(event) {
-                            search.map_open(address);
-                        });
-                    });
-                    
-                    google.maps.event.addListener(marker, 'click', function() {
-                        mapTools.aMap.setCenter(latLng);
-                    });
-                    
-                    mapTools.aMapMarkerArray.push(marker);
-                });
-            });
+            mapTools.directions.recursionCalcRoute($address, 0);
         });
         
         return this;
@@ -758,5 +807,12 @@ var mapTools = {
 
 search.init();
 
+
+function wait(waitMilliSeconds) {
+    var startTime = (new Date()).getTime();
+    while (true) {
+        if ((new Date()).getTime() >= startTime + waitMilliSeconds) break;
+    }
+}
 
 
