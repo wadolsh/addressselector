@@ -216,7 +216,6 @@ var menu_func = {
                 if (area[0].id == "li-map") {
                     mapTools.aMap_clear();
                 }
-                
             }
         });
 
@@ -238,25 +237,6 @@ var menu_func = {
         return this;
     },
     refresh_ken: function(){
-        /*
-        var $main_ken = $('#main-ken').empty();
-        var $button = null;
-        
-        $.each(this._meta.ken, function(key, val) {
-            $button = $('<button class="uk-button ' + (val.dbsize > 0 ? 'uk-button-primary' : '' )  +  '" type="button">' + val.name + '(' + val.num + ')</button>')
-                        .appendTo($main_ken)
-                        .click(function(event) {
-                            if (val.dbsize > 0) {
-                                db.select('DISTINCT city_id, city_name, city_furi', 'ken_id = ' + val.num, null, function(rt, rs) {
-                                    menu_func.refresh_city(rs.rows, val);
-                                    $('#select-ken').html(val.name);
-                                });
-                            } else {
-                                menu_func.insert_db(val);
-                            }
-                        });
-        });
-        */
         var ele = tmpl.render('main-ken', this._meta.ken);
         $(ele).find('button').click(function(event) {
                             var ken = menu_func._meta.ken[this.dataset.key];
@@ -340,28 +320,6 @@ var menu_func = {
         
         return this;
     },
-    refresh_nearby: function() {
-        mapTools.geocoding.nearByCho(function(data) {
-            var ele = tmpl.render('nearby-list', data);
-            $(ele).find('a').click(function(event) {
-                //console.log(data);
-                var selected = data[this.dataset.ind];
-
-                db.select("DISTINCT ken_id, ken_name, ken_furi, city_id, city_name, city_furi, town_id, town_name, town_furi", "ken_name = '" + selected.ken_name 
-                                                            + "' and city_name = '" + selected.city_name 
-                                                            + "' and town_name = '" + selected.town_name + "'", null, function(rt, rs) {
-                    var town = rs.rows.item(0);
-                    menu_func.refresh_city(town);
-                    menu_func.refresh_town(town);
-                    $('#select-ken').html(town.ken_name);
-                    $('#select-city').html(town.city_name);
-                    $('#select-town').html(town.town_name);
-                    $('#select-block').click();
-                });
-            });
-        });
-    },
-    
     insert_db: function(jsonKen) {
         return mongo.getCol(jsonKen.dbkey, function(data) {
             db.insert(data);
@@ -383,6 +341,14 @@ var menu_func = {
 
 var search = {
     init: function() {
+        $('#search_input').keyup(function () {
+            if (this.value) {
+                search.search_word(this.value);
+            } else {
+                search.refresh_search_list({});
+            }
+        });
+        
         if (localStorage['keep']) {
             this.keep.data = JSON.parse(localStorage['keep']);
         }
@@ -538,28 +504,51 @@ var search = {
         var href = (document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1) ? "geo:0,0?q=" : mapTools.url + "?q=";
         return href + address;
     },
-    
+    refresh_search_list: function(data) {
+        var ele = tmpl.render('search-list', data);
+        $(ele).find('a').click(function(event) {
+            //console.log(data);
+            var selected = data[this.dataset.ind];
+
+            db.select("DISTINCT ken_id, ken_name, ken_furi, city_id, city_name, city_furi, town_id, town_name, town_furi",
+                                                        "ken_name = '" + selected.ken_name 
+                                                        + "' and city_name = '" + selected.city_name 
+                                                        + "' and town_name = '" + selected.town_name + "'", null, function(rt, rs) {
+                var town = rs.rows.item(0);
+                menu_func.refresh_city(town);
+                menu_func.refresh_town(town);
+                $('#select-ken').html(town.ken_name);
+                $('#select-city').html(town.city_name);
+                $('#select-town').html(town.town_name);
+                $('#select-block').click();
+            });
+        });
+    },
+    refresh_nearby: function() {
+        mapTools.geocoding.nearByCho(search.refresh_search_list);
+    },
     search_word: function(word) {
-        $('#searchForm').addClass('uk-open');
-        var $ul = $('#searchForm ul').empty();//.parent().addClass('uk-dropdown-flip');
-        db.select('DISTINCT ken_name, city_name, town_name', 'city_name like ? or town_name like ? or city_furi like ? or town_furi like ?', ['%' + word + '%', '%' + word + '%', '%' + word + '%', '%' + word + '%'], function(rt, rs) {
-            
-            var row = null;
-            for (var i = 0; i < rs.rows.length; i++) {
-                row = rs.rows.item(i);
-                $ul.append('<li>' + row.ken_name + row.city_name + row.town_name + '</li>');
-            }
-            
-            //var ele = tmpl.render('search-result', rs.rows);
+        word = word.replace(/[ぁ-ん]/g, function(s) {
+           return String.fromCharCode(s.charCodeAt(0) + 0x60);
+        });
+        db.select('DISTINCT ken_name, city_name, town_name', 'city_name like ? or town_name like ? or city_furi like ? or town_furi like ?',
+                    ['%' + word + '%', '%' + word + '%', '%' + word + '%', '%' + word + '%'],
+                    function(rt, rs) {
+                        if (rs.rows.length > 40) {
+                            search.refresh_search_list({msg: "検索結果が40件を超えました。"});
+                            return;
+                        }
+                        var datas = [];
+                        var row = null;
+                        for (var i = 0; i < rs.rows.length; i++) {
+                            row = rs.rows.item(i);
+                            datas.push(row);
+                        }
+                        search.refresh_search_list(datas);
         });
     }
     
 };
-
-$('#searchInput').keyup(function () {
-    search.search_word(this.value);
-});
-
 
 var mapTools = {
     url: "https://maps.google.com/maps",

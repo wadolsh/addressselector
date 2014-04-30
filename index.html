@@ -30,21 +30,10 @@
                     <li><button id="select-town" class="uk-button uk-button-success">***区</button></li>
                     <li><button id="select-block" class="uk-button uk-button-success">番地</button></li>
                     
-                    <li class="uk-margin-left"><button id="select-nearby" class="uk-button uk-button-danger">周辺</button></li>
-                    <li class=""><button id="select-book" class="uk-button uk-button-danger">ブック</button></li>
+                    <li class="uk-margin-left"><button id="select-nearby" class="uk-button uk-button-danger">検索</button></li>
+                    <li class=""><button id="select-book" class="uk-button">ブック</button></li>
                     <li id="li-map"><button id="select-map" class="uk-button uk-button-primary">マップ表示</button></li>
                 </ul>
-                <!--
-                <div class="uk-navbar-flip">
-                    <div class="uk-navbar-content">
-                        <form class="uk-search" id="searchForm" data-uk-search="{flipDropdown:true}">
-                            <input class="uk-search-field" type="search" placeholder="" id="searchInput">
-                            <button class="uk-search-close" type="reset"></button>
-                        </form>
-                    </div>
-                </div>
-                -->
-
             </nav>
         </div>
         <div class="uk-panel uk-panel-box uk-scrollable-text">
@@ -111,14 +100,24 @@
                 </div>
                 <div id="main-nearby">
                     <div>
-                        <button class="uk-button uk-button-primary big-button" onclick="menu_func.refresh_nearby();">周辺検索</button>
+                        <button class="uk-button uk-button-primary big-button" onclick="search.refresh_nearby();">周辺検索</button>
+                        <div class="uk-form-icon uk-float-right">
+                            <i class="uk-icon-search"></i>
+                            <input type="text" id="search_input" class="uk-form-large"/>
+                        </div>
                     </div>
-                    <div id="nearby-list" class="tmpl">
-                        ## $.each(data, function(ind, obj) { ##
-                            <a href="#" class="uk-button uk-button-success" data-ind="##=ind##">
-                                <span class="uk-text-large uk-text-bold">##=obj.town_name##</span><br/><span class="uk-text-small">##=(obj.ken_name + obj.city_name)##</span>
-                            </a>
-                        ## }); ##
+                    <div id="search-list" class="tmpl">
+                        ## if (data.msg) { ##
+                            ##=data.msg##
+                        ## } else if(data.length == 0) { ##
+                            検索結果がありません。
+                        ## } else { ##
+                            ## $.each(data, function(ind, obj) { ##
+                                <a href="#" class="uk-button uk-button-success" data-ind="##=ind##">
+                                    <span class="uk-text-large uk-text-bold">##=obj.town_name##</span><br/><span class="uk-text-small">##=(obj.ken_name + obj.city_name)##</span>
+                                </a>
+                            ## }) ##
+                        ## } ##
                     </div>
                 </div>
                 <div id="main-book">
@@ -142,7 +141,7 @@
                 
                 <div id="main-map">
                     <button id="reflash-directions" class="uk-button uk-button-primary">経路更新</button>
-                    <button id="reflash-fastDirections" class="uk-button">最短ルート</button>
+                    <button id="reflash-fastDirections" class="uk-button uk-button-danger">最短ルート</button>
                     <button id="directions-setting" class="uk-button" data-uk-modal="{target:'#direction_setting_modal'}">ロートオプション</button>
                     <div id="map_canvas"></div>
                 </div>
