@@ -110,3 +110,7 @@ button {
 #keep-list .route-line {
     color: #da314b;
 }
+
+#keep-list .info-line {
+    color: #000000;
+}
