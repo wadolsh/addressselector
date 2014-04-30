@@ -194,15 +194,18 @@ var menu_func = {
         
         $('#reflash-directions').on('click', function() {
             mapTools.aMap_clear();
-            mapTools.aMap_render($('#keep-list .uk-alert'));
+            mapTools.aMap_render($('#keep-list .keep'));
             menu_func.checkDirections = true;
+        });
+        $('#reflash-fastDirections').on('click', function() {
+            mapTools.directions.calcFastRoute();
         });
         
         $('#main-switcher-ul').on({
             'uk.switcher.show': function(event, area){
                 if (area[0].id == "li-map") {
+                    $('#map_canvas').height($('body').height() - 102).resize();
                     google.maps.event.trigger(mapTools.aMap, 'resize');
-                    $('#main-map').height($('body').height() - 82).resize();
                     if (!menu_func.checkDirections) {
                         $('#reflash-directions').click();
                     }
@@ -281,27 +284,6 @@ var menu_func = {
         
         $('#select-town').html('***区');
         $('#select-city').html('***市').click();
-        
-        
-        /*
-        var $button = null;
-        var $main = $('#main-city').empty();
-        var row = null;
-        for (var i = 0; i < rows.length; i++) {
-            row = rows.item(i);
-            $button = $('<button class="uk-button uk-button-primary" type="button">' + (row.city_name + '<br/>' + row.city_id) + '<br/>(' + row.city_furi + ')</button>')
-                .appendTo($main)
-                .click(function(event) {
-                    var val = this.val;
-                    db.select('DISTINCT town_id, town_name, town_furi', 'city_id = ' + val.city_id, null, function(rt, rs) {
-                        menu_func.refresh_town(rs.rows, val);
-                        $('#select-city').html(val.city_name);
-                    });
-                });
-            $button.get(0).val = row;
-        }
-        */
-
     },
     refresh_town: function(city) {
         db.select('DISTINCT town_id, town_name, town_furi', 'city_id = ' + city.city_id, null, function(rt, rs) {
@@ -316,24 +298,6 @@ var menu_func = {
         });
         
         $('#select-town').html('***区').click();
-        
-        /*
-        var $button = null;
-        var $main = $('#main-town').empty();
-        var row = null;
-        for (var i = 0; i < rows.length; i++) {
-            row = rows.item(i);
-            $button = $('<button class="uk-button uk-button-primary" type="button">' + (row.town_name + '<br/>' + row.town_id) + '<br/>(' + row.town_furi + ')</button>')
-                .appendTo($main)
-                .click(function(event) {
-                    var val = this.val;
-                    $('#select-town').html(val.town_name);
-                    $('#select-block').click();
-                });
-            $button.get(0).val = row;
-        }
-        */
-
     },
     refresh_block: function() {
         var $inputBlock = $('#input-block');
@@ -348,7 +312,6 @@ var menu_func = {
             $inputBlock.val(block.slice(0, -1));
         });
         
-        var $keepList = $('#keep-list');
         $('#address-keep').click(function(ind, obj) {
             search.now.get();
             search.now.add_keep();
@@ -379,15 +342,6 @@ var menu_func = {
     },
     refresh_nearby: function() {
         mapTools.geocoding.nearByCho(function(data) {
-           //console.log(data);
-           /*
-            var $nearbyList = $('#nearby-list').empty();
-            $.each(data, function(ind, obj) {
-                $('<a href="' + search.map_url(obj.ken_name + obj.city_name + obj.town_name + obj.block_name) + '" class="uk-button uk-button-success">' + obj.block_name + '</a>')
-                    .appendTo($nearbyList);
-            });
-            */
-            
             var ele = tmpl.render('nearby-list', data);
             $(ele).find('a').click(function(event) {
                 //console.log(data);
@@ -441,6 +395,9 @@ var search = {
     keep: {
         $keepList: $('#keep-list'),
         data: [],
+        listCount: function() {
+            stat.msg(search.keep.$keepList.find('.keep').size() + ' / ' + search.keep.data.length);
+        },
         save: function() {
             localStorage['keep'] = JSON.stringify(search.keep.data);
         },
@@ -448,13 +405,11 @@ var search = {
             search.keep.$keepList.empty();
             search.keep.recursionAdd(search.keep.data, 0);
         },
-        
         recursionAdd: function(addressArray, ind) {
             if (addressArray.length < 1) {
                 return;
             }
             search.keep.add(addressArray[ind], function() {
-                stat.msg((ind + 1) + ' / ' + addressArray.length);
                 if (addressArray.length > ind + 1) {
                     setTimeout(function() {
                         search.keep.recursionAdd(addressArray, ind + 1);
@@ -462,10 +417,9 @@ var search = {
                 }
             });
         },
-        
         add: function(address, func) {
             var idx = (search.keep.$keepList.find('[data-idx]:last').data('idx') || 0) + 1;
-            var $addressLine = $('<div class="uk-alert uk-grid" data-uk-alert data-address="' + address + '" data-idx="' + idx + '"><a href="' + search.map_url(address) + '" class="uk-button uk-width-1-6">' + idx + '</a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
+            var $addressLine = $('<div class="uk-alert uk-grid keep" data-uk-alert data-address="' + address + '" data-idx="' + idx + '"><a href="' + search.map_url(address) + '" class="uk-button uk-width-1-6">' + idx + '</a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span><span class="route-line uk-float-right"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
                 .appendTo(search.keep.$keepList);
             
             $addressLine.find('.uk-close').click(function(event) {
@@ -475,14 +429,18 @@ var search = {
                 }
                 search.keep.save();
                 if ($addressLine.hasClass('selected')) {
-                    mapTools.directions.directionsDisplay.setMap(null);
+                    mapTools.directions.directionsRenderer.setMap(null);
                 }
                 if ($addressLine[0].marker) {
                     $addressLine[0].marker.setMap(null);
                 }
+                setTimeout(function() {
+                    search.keep.listCount();
+                }, 500);
             });
             
             mapTools.geocoding.latLngByAddress(address, function(latLng) {
+                search.keep.listCount();
                 if (func) {
                     func();
                 }
@@ -491,15 +449,6 @@ var search = {
                     return;
                 }
                 var marker = new google.maps.Marker({
-                    /*
-                    icon: {
-                        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                        fillOpacity: 1,
-                        fillColor: color,
-                        strokeWeight: 0,
-                        scale: 4
-                    },
-                    */
                     icon : 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld=' + idx + '|00a8e6|000000',
                     map: mapTools.aMap,
                     position:latLng,
@@ -537,22 +486,6 @@ var search = {
             $('#input-book-word').val('');
         },
         reflash: function() {
-            //var $bookList = $('#book-list').empty();
-            /*
-            $.each(search.book.data, function(ind, obj) {
-                $('<div class="uk-alert" data-uk-alert data-address="' + obj.word + '"><a href="" class="uk-alert-close uk-close"></a><a href="' + search.map_url(obj.word) + '" class="uk-button uk-button-danger">'
-                        + '<span class="uk-text-large uk-text-bold">' + obj.title + '</span><br/><span class="uk-text-small">' + obj.word + '</span></a></div>')
-                    .appendTo($bookList)
-                    .find('.uk-close').click(function(event) {
-                        if (confirm('削除してもよろしいでしょうか？')) {
-                            search.book.del(ind);
-                        } else {
-                            return false;
-                        }
-                    });
-                    
-            });
-            */
             var bookList = tmpl.render('book-list', search.book.data);
             $(bookList).find('.uk-close').click(function(event) {
                         if (confirm('削除してもよろしいでしょうか？')) {
@@ -560,7 +493,7 @@ var search = {
                         } else {
                             return false;
                         }
-                    });
+            });
         }
     },
     now: {
@@ -635,7 +568,7 @@ var mapTools = {
     myMarker: null,
     aMapMarkerArray: [],
     
-    color: ['auqa', 'blue', 'lime', 'purple', 'maroon', 'navy', 'olive', 'green', 'orange', 'red', 'silver', 'teal', 'yellow', 'fuchsia', 'gray', 'black', 'white'],
+    //color: ['auqa', 'blue', 'lime', 'purple', 'maroon', 'navy', 'olive', 'green', 'orange', 'red', 'silver', 'teal', 'yellow', 'fuchsia', 'gray', 'black', 'white'],
     init: function() {
         var that = this;
         that.mapOptions = {
@@ -647,8 +580,29 @@ var mapTools = {
             map: that.aMap
         });
         
-        this.directions.directionsDisplay.setMap(this.aMap);
+        this.directions.directionsRenderer.setMap(this.aMap);
         
+        $('#direction_setting_modal').on({
+            'uk.modal.show': function(){
+                mapTools.directions.$directionSettingModal.find('input[name="highways"]')
+                    .prop('checked', mapTools.directions.setting.highways);
+                mapTools.directions.$directionSettingModal.find('input[name="tolls"]')
+                    .prop('checked', mapTools.directions.setting.tolls);
+                
+                var $destination = mapTools.directions.$directionSettingModal.find('select[name="destination"]').empty();
+                $.each(search.keep.$keepList.find('.keep'), function(ind, obj) {
+                    $destination.append('<option value="' + obj.dataset.idx + '">' + obj.dataset.idx + ' ' + obj.dataset.address + '</option>');
+                });
+                $destination[0].value = mapTools.directions.setting.destinationIdx;
+            },
+            'uk.modal.hide': function(){
+                mapTools.directions.$directionSettingModal.find('input').each(function(ind, obj) {
+                    mapTools.directions.setting[obj.name] = obj.checked;
+                });
+                var destinationIdx = mapTools.directions.$directionSettingModal.find('select[name="destination"]').val();
+                mapTools.directions.setting.destinationIdx = destinationIdx;
+            }
+        });
         return this;
     },
     
@@ -723,26 +677,83 @@ var mapTools = {
     },
     
     directions: {
-        directionsDisplay: new google.maps.DirectionsRenderer(),
+        setting: {
+            highways: false,
+            tolls: false,
+            optimizeWaypoints: true,
+            travelMode: google.maps.TravelMode.DRIVING,
+            destination: null,
+            destinationIdx: 0
+        },
+        $directionSettingModal: $('#direction_setting_modal'),
+        directionsRenderer: new google.maps.DirectionsRenderer(),
         directionsService: new google.maps.DirectionsService(),
+        calcFastRoute: function() {
+            var directionsObj = search.keep.$keepList.find('[data-idx="' + mapTools.directions.setting.destinationIdx + '"]')[0]
+            if (!mapTools.directions.setting.destinationIdx || !directionsObj) {
+                alert("目的地が設定されていません。\n経路オプションから最短ルート最終目的地を設定してください。");
+                return;
+            }
+            
+            mapTools.directions.setting.destination = directionsObj.marker.getPosition();
+            
+            var waypts = [];
+            search.keep.$keepList.find('.keep').each(function(ind, obj) {
+                if (!obj.marker) {
+                    return;
+                }
+                waypts.push({
+                    location: obj.marker.getPosition(),
+                    stopover: true
+                });
+            });
+            
+            var requestOption = {
+                origin: mapTools.myMarker.getPosition(),
+                destination: mapTools.directions.setting.destination,
+                waypoints: waypts,
+                avoidHighways: !mapTools.directions.setting.highways,
+                avoidTolls: !mapTools.directions.setting.tolls,
+                optimizeWaypoints: mapTools.directions.setting.optimizeWaypoints,
+                travelMode: mapTools.directions.setting.travelMode
+            };
+            mapTools.directions.directionsService.route(requestOption, function(response, status) {
+                mapTools.directions.directionsRenderer.setMap(mapTools.aMap);
+                //mapTools.directions.directionsRenderer.setPanel($('#fast_direction_panel')[0]);
+                mapTools.directions.directionsRenderer.setDirections(response);
+                
+                var $keep = search.keep.$keepList.find('.keep');
+                $('#fast_direction_panel').html(function() {
+                    var html = "";
+                    var selected = null;
+                    $.each(response.routes[0].waypoint_order, function(ind, order) {
+                        $($keep[order]).find('.route-line').html('[経路：' + (ind + 1) + ']');
+                    });
+                    return html;
+                });
+                //console.log(response);
+            });
+        },
         calcRoute: function(addressObj, func) {
             var marker = addressObj.marker;
             var requestOption = {
                 origin: mapTools.myMarker.getPosition(),
                 destination: marker.getPosition(),
-                travelMode: google.maps.TravelMode.DRIVING
+                travelMode: mapTools.directions.setting.travelMode,
+                avoidHighways: !mapTools.directions.setting.highways,
+                avoidTolls: !mapTools.directions.setting.tolls,
             };
             mapTools.directions.directionsService.route(requestOption, function(response, status) {
                 var $markerObj = $(addressObj);
                 if (status == google.maps.DirectionsStatus.OK) {
                     
-                    //mapTools.directions.directionsDisplay.setDirections(response);
+                    //mapTools.directions.directionsRenderer.setDirections(response);
                     var leg = response.routes[0].legs[0];
                     
                     $markerObj.find('.info-line').html('<br/>[' + leg.distance.text + ', ' + leg.duration.text + ']');
 
                     $markerObj.find('.address-line').click(function(event) {
-                        mapTools.directions.directionsDisplay.setMap(mapTools.aMap);
+                        mapTools.directions.directionsRenderer.setMap(mapTools.aMap);
                         var $mapArea = $('#main-map');
                         if (!$mapArea.hasClass('uk-active')) {
                             $('#select-map').click();
@@ -751,7 +762,7 @@ var mapTools = {
                         $('#keep-list').find('.selected').removeClass('selected');
                         $this.parent().addClass('selected');
                         google.maps.event.trigger(marker, "click");
-                        mapTools.directions.directionsDisplay.setDirections(response);
+                        mapTools.directions.directionsRenderer.setDirections(response);
                     });
                 } else {
                     console.log('Route失敗: ' + status);
