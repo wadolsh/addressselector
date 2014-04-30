@@ -723,13 +723,8 @@ var mapTools = {
                 mapTools.directions.directionsRenderer.setDirections(response);
                 
                 var $keep = search.keep.$keepList.find('.keep');
-                $('#fast_direction_panel').html(function() {
-                    var html = "";
-                    var selected = null;
-                    $.each(response.routes[0].waypoint_order, function(ind, order) {
-                        $($keep[order]).find('.route-line').html('[経路：' + (ind + 1) + ']');
-                    });
-                    return html;
+                $.each(response.routes[0].waypoint_order, function(ind, order) {
+                    $($keep[order]).find('.route-line').html('[経路：' + (ind + 1) + ']');
                 });
                 //console.log(response);
             });
