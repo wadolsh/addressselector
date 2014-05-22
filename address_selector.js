@@ -192,6 +192,18 @@ var menu_func = {
         this.refresh_book();
         $('#main-ken').addClass('uk-active');
         
+        var $scaleSelect = $('#viewport-scale');
+        var sv = 0;
+        for (var i=150; i > 49; i=i-5) {
+            sv = i / 100;
+            $scaleSelect.append('<option value="' + sv + '">x ' + sv + '</option');
+        }
+        $scaleSelect.on('change', function() {
+            localStorage['viewport_scale'] = this.value;
+            $('meta[name="viewport"]').attr('content', 'width=device-width, initial-scale=' + this.value + ', maximum-scale=' + this.value + ', user-scalable=no');
+        });
+        $scaleSelect.val(localStorage['viewport_scale'] || 1).change();
+        
         $('#reflash-directions').on('click', function() {
             mapTools.aMap_clear();
             mapTools.aMap_render($('#keep-list .keep'));

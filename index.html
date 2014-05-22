@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, user-scalable=no" />
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <title>住所入力</title>
@@ -162,6 +162,11 @@
             <li><a href="#" onclick="menu_func.reget_meta();">県リセット</a></li>
             <li class="uk-nav-divider"></li>
             <li><a href="#" onclick="menu_func.reset_all();">初期化</a></li>
+            <li class="uk-nav-divider"></li>
+            <li>
+                <a href="#">画面調整</a>
+                <select id="viewport-scale" class="uk-float-right"></select>
+            </li>
         </ul>
     </div>
 </div>
@@ -232,5 +237,11 @@
     <script src="uikit-2.3.1/js/uikit.min.js"></script>
     <script src="uikit-2.3.1/addons/js/sticky.js"></script>
     <script src="address_selector.js"></script>
+    
+<script type="text/javascript">
+//alert(window.devicePixelRatio);
+
+</script>
+    
     </body>
 </html>
