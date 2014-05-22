@@ -196,7 +196,7 @@ var menu_func = {
         var sv = 0;
         for (var i=150; i > 49; i=i-5) {
             sv = i / 100;
-            $scaleSelect.append('<option value="' + sv + '">x ' + sv + '</option');
+            $scaleSelect.append('<option value="' + sv + '">x ' + sv + '</option>');
         }
         $scaleSelect.on('change', function() {
             localStorage['viewport_scale'] = this.value;
