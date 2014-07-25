@@ -413,6 +413,9 @@ var search = {
             var $addressLine = $('<div class="uk-alert uk-grid keep" data-uk-alert data-address="' + address + '" data-idx="' + idx + '"><a href="' + search.map_url(address) + '" class="uk-button uk-width-1-6">' + idx + '</a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span><span class="route-line uk-float-right"></span></a><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></div>')
                 .appendTo(search.keep.$keepList);
             
+            //var $addressLine = $('<dt class="keep" data-uk-alert data-address="' + address + '" data-idx="' + idx + '"><a href="' + search.map_url(address) + '" class="uk-button uk-width-1-6">' + idx + '</a><a href="#" class="uk-width-4-6 address-line">' + address + '<span class="info-line"></span><span class="route-line uk-float-right"></span></a></dt><dl><a href="" class="uk-alert-close uk-close uk-width-1-6"></a></dl>')
+            //    .appendTo(search.keep.$keepList);
+                
             $addressLine.find('.uk-close').click(function(event) {
                 var index = search.keep.data.indexOf(address);;
                 if (index > -1) {
@@ -571,6 +574,91 @@ var search = {
                         }
                         search.refresh_search_list(datas);
         });
+    },
+    
+    setwebcam: function(){
+        
+        var gCtx = null;
+        var gCanvas = null;
+        var stype=0;
+        var gUM=false;
+        var webkit=false;
+        var video=null;
+        
+        qrcode.callback = function (result) {
+            
+            var html="<br>";
+            if(result.indexOf("http://") === 0 || result.indexOf("https://") === 0) {
+                result = result.replace("http://", "").replace("https://", "");
+            }
+            
+            search.keep.add(result);
+        }
+        function initCanvas(w,h){
+            gCanvas = document.getElementById("qr-canvas");
+            gCanvas.style.width = w + "px";
+            gCanvas.style.height = h + "px";
+            gCanvas.width = w;
+            gCanvas.height = h;
+            gCtx = gCanvas.getContext("2d");
+            gCtx.clearRect(0, 0, w, h);
+        }
+        
+        initCanvas(200, 200);
+        
+        function captureToCanvas() {
+            if(stype!=1)
+                return;
+            if(gUM) {
+                try{
+                    gCtx.drawImage(v,0,0);
+                    try{
+                        qrcode.decode();
+                    }
+                    catch(e){       
+                        console.log(e);
+                        setTimeout(captureToCanvas, 500);
+                    };
+                } catch(e){       
+                    console.log(e);
+                    setTimeout(captureToCanvas, 500);
+                };
+            }
+        }    
+        
+        function success(stream) {
+            if(webkit) {
+                video.src = window.webkitURL.createObjectURL(stream);
+            } else {
+                video.src = stream;
+            }
+            gUM=true;
+            setTimeout(captureToCanvas, 500);
+        }
+        
+        function error(error) {
+            gUM=false;
+            return;
+        }
+
+        if(stype==1)
+        {
+            setTimeout(captureToCanvas, 500);    
+            return;
+        }
+        var n=navigator;
+        //document.getElementById("outdiv").innerHTML = vidhtml;
+        video = document.getElementById("outVideo");
+    
+        if(n.getUserMedia) {
+            n.getUserMedia({video: true, audio: false}, success, error);
+        } else if(n.webkitGetUserMedia) {
+            webkit=true;
+            n.webkitGetUserMedia({video: true, audio: false}, success, error);
+        }
+
+        stype=1;
+        setTimeout(captureToCanvas, 500);
     }
     
 };

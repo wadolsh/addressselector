@@ -20,6 +20,7 @@
             </ul>
         </nav>
         <div id="keep-list" class="uk-scrollable-text"></div>
+        <!--<dl id="keep-list" class="uk-description-list uk-description-list-line uk-scrollable-text"></dl>-->
     </div>
     <div class="wrapper">
         <div style="z-index: 100" data-uk-sticky>
@@ -105,11 +106,13 @@
                 <div id="main-nearby">
                     <div>
                         <button class="uk-button uk-button-primary big-button" onclick="search.refresh_nearby();">周辺検索</button>
+                        <button class="uk-button uk-button-danger big-button" onclick="search.setwebcam()">QR CODE</button>
                         <div class="uk-form-icon uk-float-right">
                             <i class="uk-icon-search"></i>
                             <input type="text" id="search_input" class="uk-form-large"/>
                         </div>
                     </div>
+                    
                     <div id="search-list" class="tmpl">
                         ## if (data.msg) { ##
                             ##=data.msg##
@@ -123,6 +126,8 @@
                             ## }) ##
                         ## } ##
                     </div>
+                    <div id="outdiv"><video id="outVideo" autoplay></video></div>
+                    <canvas id="qr-canvas"></canvas>
                 </div>
                 <div id="main-book">
                     <div>
@@ -241,6 +246,24 @@
     <script src="uikit-2.3.1/js/uikit.min.js"></script>
     <script src="uikit-2.3.1/addons/js/sticky.js"></script>
     <script src="address_selector.js"></script>
+    
+    <script type="text/javascript" src="qr/grid.js"></script>
+    <script type="text/javascript" src="qr/version.js"></script>
+    <script type="text/javascript" src="qr/detector.js"></script>
+    <script type="text/javascript" src="qr/formatinf.js"></script>
+    <script type="text/javascript" src="qr/errorlevel.js"></script>
+    <script type="text/javascript" src="qr/bitmat.js"></script>
+    <script type="text/javascript" src="qr/datablock.js"></script>
+    <script type="text/javascript" src="qr/bmparser.js"></script>
+    <script type="text/javascript" src="qr/datamask.js"></script>
+    <script type="text/javascript" src="qr/rsdecoder.js"></script>
+    <script type="text/javascript" src="qr/gf256poly.js"></script>
+    <script type="text/javascript" src="qr/gf256.js"></script>
+    <script type="text/javascript" src="qr/decoder.js"></script>
+    <script type="text/javascript" src="qr/qrcode.js"></script>
+    <script type="text/javascript" src="qr/findpat.js"></script>
+    <script type="text/javascript" src="qr/alignpat.js"></script>
+    <script type="text/javascript" src="qr/databr.js"></script>
     
 <script type="text/javascript">
 //alert(window.devicePixelRatio);
