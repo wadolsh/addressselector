@@ -221,7 +221,7 @@ var menu_func = {
                 this.innerHTML = "GPS更新開始";
             } else {
                 watchId = mapTools.watchPos();
-                this.innerHTML = "GPS更新中開始";
+                this.innerHTML = "GPS更新中";
             }
         });
         
