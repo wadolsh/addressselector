@@ -213,6 +213,19 @@ var menu_func = {
             mapTools.directions.calcFastRoute();
         });
         
+        var watchId = null;
+        $('#track-gps').on('click', function() {
+            if (watchId) {
+                mapTools.clearWatchPos(watchId);
+                watchId = null;
+                this.innerHTML = "GPS更新開始";
+            } else {
+                watchId = mapTools.watchPos();
+                this.innerHTML = "GPS更新中開始";
+            }
+        });
+        
+        
         $('#main-switcher-ul').on({
             'uk.switcher.show': function(event, area){
                 if (area[0].id == "li-map") {
@@ -607,6 +620,38 @@ var mapTools = {
         return this;
     },
     
+    watchPos: function(func) {
+        if (navigator.geolocation) {
+            var watchId = navigator.geolocation.watchPosition(
+                function (pos) {
+                    //var location = "<li>" + "緯度：" + pos.coords.latitude + "</li>";
+                    //location += "<li>" + "経度：" + pos.coords.longitude + "</li>";
+                    //document.getElementById("location").innerHTML = location;
+                    
+                    var latLng = mapTools.pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                    if (mapTools.myMarker && pos.coords.accuracy > 200) {
+                        mapTools.myMarker.setPosition(latLng);
+                        mapTools.aMap.setCenter(latLng);
+                    }
+                    if (func) {
+                        func(latLng);
+                    }
+                    
+                },
+                null,
+                { enableHighAccuracy: true, timeout:1000, maximumAge:0 }
+            );
+            return watchId;
+        } else {
+            window.alert("本ブラウザではGeolocationが使えません");
+        }
+
+    },
+    
+    clearWatchPos: function(watchId) {
+        navigator.geolocation.clearWatch(watchId);
+    },
+    
     nowPos: function(func) {
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -625,11 +670,14 @@ var mapTools = {
     
     nowPosLatLng: function(func) {
         mapTools.nowPos(function(pos) {
-            mapTools.pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            var latLng = mapTools.pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            /*
             if (mapTools.myMarker) {
-                mapTools.myMarker.setPosition(mapTools.pos);
+                mapTools.myMarker.setPosition(latLng);
+                mapTools.aMap.setCenter(latLng);
             }
-            func(mapTools.pos);
+            */
+            func(latLng);
         });
     },
     
