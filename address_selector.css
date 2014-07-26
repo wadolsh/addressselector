@@ -57,7 +57,7 @@ button {
     width: 30%;
     border-right: 1px solid rgba(0,0,0,0.1);
     height: 100%;
-    /*background-color: grey;*/
+    background-color: grey;
 }
 .wrapper {
     position: absolute;
