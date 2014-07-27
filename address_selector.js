@@ -218,6 +218,10 @@ var menu_func = {
             if (watchId) {
                 mapTools.clearWatchPos(watchId);
                 watchId = null;
+                if (mapTools.circle) {
+                    mapTools.circle.setMap(null);
+                }
+                
                 this.innerHTML = "GPS更新開始";
             } else {
                 watchId = mapTools.watchPos();
@@ -668,6 +672,7 @@ var mapTools = {
     aMap : null,
     pos: null,
     myMarker: null,
+    circle: null,
     aMapMarkerArray: [],
     
     //color: ['auqa', 'blue', 'lime', 'purple', 'maroon', 'navy', 'olive', 'green', 'orange', 'red', 'silver', 'teal', 'yellow', 'fuchsia', 'gray', 'black', 'white'],
@@ -710,6 +715,18 @@ var mapTools = {
     
     watchPos: function(func) {
         if (navigator.geolocation) {
+            // 誤差を円で描く
+            mapTools.circle = new google.maps.Circle({
+                map: mapTools.aMap,
+                //center: latLng,
+                //radius: pos.coords.accuracy, // 単位はメートル
+                strokeColor: '#0088ff',
+                strokeOpacity: 0.8,
+                strokeWeight: 1,
+                fillColor: '#0088ff',
+                fillOpacity: 0.2
+            });
+            
             var watchId = navigator.geolocation.watchPosition(
                 function (pos) {
                     //var location = "<li>" + "緯度：" + pos.coords.latitude + "</li>";
@@ -720,18 +737,8 @@ var mapTools = {
                     if (mapTools.myMarker && pos.coords.accuracy < 100) {
                         mapTools.myMarker.setPosition(latLng);
                         mapTools.aMap.setCenter(latLng);
-                        // 誤差を円で描く
-                        new google.maps.Circle({
-                            map: mapTools.aMap,
-                            center: latLng,
-                            radius: pos.coords.accuracy, // 単位はメートル
-                            strokeColor: '#0088ff',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 1,
-                            fillColor: '#0088ff',
-                            fillOpacity: 0.2
-                        });
-                        
+                        mapTools.circle.setCenter(latLng);
+                        mapTools.circle.setRadius(pos.coords.accuracy);
                     }
                     if (func) {
                         func(latLng);
