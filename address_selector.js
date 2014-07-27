@@ -717,7 +717,7 @@ var mapTools = {
                     //document.getElementById("location").innerHTML = location;
                     
                     var latLng = mapTools.pos = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-                    if (mapTools.myMarker && pos.coords.accuracy > 200) {
+                    if (mapTools.myMarker && pos.coords.accuracy < 100) {
                         mapTools.myMarker.setPosition(latLng);
                         mapTools.aMap.setCenter(latLng);
                     }
