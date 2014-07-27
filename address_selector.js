@@ -720,6 +720,18 @@ var mapTools = {
                     if (mapTools.myMarker && pos.coords.accuracy < 100) {
                         mapTools.myMarker.setPosition(latLng);
                         mapTools.aMap.setCenter(latLng);
+                        // 誤差を円で描く
+                        new google.maps.Circle({
+                            map: mapTools.aMap,
+                            center: latLng,
+                            radius: pos.coords.accuracy, // 単位はメートル
+                            strokeColor: '#0088ff',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 1,
+                            fillColor: '#0088ff',
+                            fillOpacity: 0.2
+                        });
+                        
                     }
                     if (func) {
                         func(latLng);
