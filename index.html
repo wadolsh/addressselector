@@ -106,7 +106,13 @@
                 <div id="main-nearby">
                     <div>
                         <button class="uk-button uk-button-primary big-button" onclick="search.refresh_nearby();">周辺検索</button>
-                        <button class="uk-button uk-button-danger big-button" onclick="search.setwebcam()">QR CODE</button>
+                        <button class="uk-button uk-button-danger big-button" onclick="search.qrReader.setwebcam()">QR CODE</button>
+                        <select id="select-cams" class="tmpl">
+                            
+                            ## for (var ind in data.cams) { ##
+                                <option value="##=ind##">##=data.cams[ind].label##</option>
+                            ## } ##
+                        </select>
                         <div class="uk-form-icon uk-float-right">
                             <i class="uk-icon-search"></i>
                             <input type="text" id="search_input" class="uk-form-large"/>

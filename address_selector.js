@@ -384,6 +384,9 @@ var search = {
         if (localStorage['book']) {
             this.book.data = JSON.parse(localStorage['book']);
         }
+        
+        this.qrReader.initWebcam();
+        
         this.reflash();
         return this;
     },
@@ -523,6 +526,7 @@ var search = {
     reflash: function() {
         search.keep.reflash();
         search.book.reflash();
+        search.qrReader.reflash();
         return this;
     },
     
@@ -580,90 +584,125 @@ var search = {
         });
     },
     
-    setwebcam: function(){
-        
-        var gCtx = null;
-        var gCanvas = null;
-        var stype=0;
-        var gUM=false;
-        var webkit=false;
-        var video=null;
-        
-        qrcode.callback = function (result) {
+    
+    qrReader: {
+        selectedCam: null,
+        cams: [],
+        initWebcam: function() {
+            var qrReader = this;
             
-            var html="<br>";
-            if(result.indexOf("http://") === 0 || result.indexOf("https://") === 0) {
-                result = result.replace("http://", "").replace("https://", "");
+            navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                                  navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        },
+
+        reflash: function() {
+            var qrReader = this;
+            MediaStreamTrack.getSources(function (media_sources) {
+                for (var i = 0; i < media_sources.length; i++) {
+                    var media_source = media_sources[i];
+                    var constraints = {};
+                    // if video device
+                    if (media_source.kind == 'video') {
+                        qrReader.cams.push(media_source);
+                    }
+                }
+                if (!qrReader.selectedCam) {
+                    qrReader.selectedCam = qrReader.cams[0];
+                }
+                var selectCams = tmpl.render('select-cams', qrReader);
+                $(selectCams).find('option').click(function(event) {
+                    qrReader.selectedCam = qrReader.cams[selectCams.value];
+                });
+            });
+        },
+        
+        setwebcam: function(){
+            var qrReader = this;
+        
+            var gCtx = null;
+            var gCanvas = null;
+            var stype=0;
+            var gUM=false;
+            var webkit=false;
+            var video=null;
+            
+            qrcode.callback = function (result) {
+                
+                var html="<br>";
+                if(result.indexOf("http://") === 0 || result.indexOf("https://") === 0) {
+                    result = result.replace("http://", "").replace("https://", "");
+                }
+                
+                search.keep.add(result);
+            }
+            function initCanvas(w,h){
+                gCanvas = document.getElementById("qr-canvas");
+                gCanvas.style.width = w + "px";
+                gCanvas.style.height = h + "px";
+                gCanvas.width = w;
+                gCanvas.height = h;
+                gCtx = gCanvas.getContext("2d");
+                gCtx.clearRect(0, 0, w, h);
             }
             
-            search.keep.add(result);
-        }
-        function initCanvas(w,h){
-            gCanvas = document.getElementById("qr-canvas");
-            gCanvas.style.width = w + "px";
-            gCanvas.style.height = h + "px";
-            gCanvas.width = w;
-            gCanvas.height = h;
-            gCtx = gCanvas.getContext("2d");
-            gCtx.clearRect(0, 0, w, h);
-        }
-        
-        initCanvas(200, 200);
-        
-        function captureToCanvas() {
-            if(stype!=1)
-                return;
-            if(gUM) {
-                try{
-                    gCtx.drawImage(v,0,0);
+            initCanvas(200, 200);
+            
+            function captureToCanvas() {
+                if(stype!=1)
+                    return;
+                if(gUM) {
                     try{
-                        qrcode.decode();
-                    }
-                    catch(e){       
+                        gCtx.drawImage(v,0,0);
+                        try{
+                            qrcode.decode();
+                        }
+                        catch(e){       
+                            console.log(e);
+                            setTimeout(captureToCanvas, 500);
+                        };
+                    } catch(e){       
                         console.log(e);
                         setTimeout(captureToCanvas, 500);
                     };
-                } catch(e){       
-                    console.log(e);
-                    setTimeout(captureToCanvas, 500);
-                };
+                }
+            }    
+            
+            function success(stream) {
+                if(navigator.webkitGetUserMedia) {
+                    video.src = window.webkitURL.createObjectURL(stream);
+                } else {
+                    video.src = stream;
+                }
+                gUM=true;
+                setTimeout(captureToCanvas, 500);
             }
-        }    
+            
+            function error(error) {
+                gUM=false;
+                return;
+            }
+    
+            if(stype==1)
+            {
+                setTimeout(captureToCanvas, 500);    
+                return;
+            }
+            //document.getElementById("outdiv").innerHTML = vidhtml;
+            video = document.getElementById("outVideo");
         
-        function success(stream) {
-            if(webkit) {
-                video.src = window.webkitURL.createObjectURL(stream);
-            } else {
-                video.src = stream;
-            }
-            gUM=true;
+            //if(n.getUserMedia) {
+            //    n.getUserMedia({video: true, audio: false}, success, error);
+            //} else if(n.webkitGetUserMedia) {
+                //webkit=true;
+                navigator.webkitGetUserMedia({video: {optional: [{sourceId: qrReader.selectedCam.id}]}, audio: false}, success, error);
+            //}
+    
+            stype=1;
             setTimeout(captureToCanvas, 500);
         }
         
-        function error(error) {
-            gUM=false;
-            return;
-        }
-
-        if(stype==1)
-        {
-            setTimeout(captureToCanvas, 500);    
-            return;
-        }
-        var n=navigator;
-        //document.getElementById("outdiv").innerHTML = vidhtml;
-        video = document.getElementById("outVideo");
-    
-        if(n.getUserMedia) {
-            n.getUserMedia({video: true, audio: false}, success, error);
-        } else if(n.webkitGetUserMedia) {
-            webkit=true;
-            n.webkitGetUserMedia({video: true, audio: false}, success, error);
-        }
-
-        stype=1;
-        setTimeout(captureToCanvas, 500);
-    }
+        
+    },
     
 };
 
